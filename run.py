@@ -48,7 +48,7 @@ def main():
     create_database()
 
     # Display form for user input
-    project_id = st.text_input("Enter Project ID:")
+    project_id = st.sidebar.text_input("Enter Project ID:")
     username = st.text_input("Enter your username:")
     email = st.text_input("Enter your email:")
 
@@ -62,7 +62,7 @@ def main():
                 # Convert uploaded image to bytes
                 image_bytes = uploaded_image.read()
                 insert_user_data(username, email, project_id, image_bytes)
-                st.success("User data saved successfully!")
+                st.success("You have successfully registered!")
             else:
                 st.error("Please upload a profile image.")
         else:
