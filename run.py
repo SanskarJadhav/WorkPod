@@ -178,4 +178,5 @@ def main():
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
 
-if __name__ == "__main
+if __name__ == "__main__":
+    main()
