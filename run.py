@@ -8,6 +8,7 @@ def create_database():
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
     # Create the new users table
+    c.execute('''DROP TABLE IF EXISTS users''')
     c.execute('''CREATE TABLE users
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                  username TEXT NOT NULL, 
