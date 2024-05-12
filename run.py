@@ -52,7 +52,7 @@ def delete_records_by_project_id(project_id):
 def delete_user_record(project_id, username):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ? AND username = ?''', (project_id, username))
+    c.execute('''DELETE FROM users WHERE project_id = ? AND username = ?''', (project_id, username,))
     conn.commit()
     conn.close()
 
@@ -128,12 +128,12 @@ def main():
 
         # Display user's project ID
         project_id = st.session_state.get("project_id")
+        username = st.session_state.get("username")
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
 
             # Exit project button
             if st.button("Exit Project", key="exit_button"):
-                username = st.session_state.get("username")
                 if username:
                     delete_user_record(project_id, username)
                     st.success(f"You have exited Project ID '{project_id}'. Your record has been deleted.")
