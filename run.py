@@ -117,6 +117,7 @@ def main():
                 existing_user = get_user_by_project_id_and_username(project_id, username)
                 if existing_user is not None:
                     st.session_state.project_id = project_id
+                    st.session_state.username = username
                     st.success("Login successful!")
                 else:
                     st.error("Invalid project ID or username.")
