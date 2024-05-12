@@ -44,7 +44,7 @@ def get_user_by_project_id_and_username(project_id, username):
 def delete_records_by_project_id(project_id):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id))
+    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id,))
     conn.commit()
     conn.close()
 
@@ -71,7 +71,28 @@ def main():
     create_database()
 
     # Set page title and navigation
-    st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="collapsed")
+    st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="expanded")  # Change sidebar state to "expanded"
+
+    # Custom CSS for sidebar styling
+    st.markdown(
+        """
+        <style>
+        .sidebar .sidebar-content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar .sidebar-content .sidebar-section {
+            margin-bottom: 20px;
+        }
+        .sidebar .sidebar-content .sidebar-section:last-child {
+            margin-bottom: 0;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Page navigation
     page = st.sidebar.radio("Navigation", ["Registration", "Login", "Dashboard"])
@@ -147,7 +168,7 @@ def main():
                 st.success(f"All records for project ID '{project_id}' have been deleted.")
 
             # Display users with the same project ID
-            st.sidebar.header("Active Users")
+            st.sidebar.header("Project Members")
             project_users = get_users_by_project_id(project_id)
             for user in project_users:
                 st.sidebar.write(f"Username: {user[1]}")
@@ -157,5 +178,4 @@ def main():
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main
