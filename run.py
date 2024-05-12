@@ -44,7 +44,7 @@ def get_user_by_project_id_and_username(project_id, username):
 def delete_records_by_project_id(project_id):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id,))
+    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id))
     conn.commit()
     conn.close()
 
@@ -52,7 +52,7 @@ def delete_records_by_project_id(project_id):
 def delete_user_record(project_id, username):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ? AND username = ?''', (project_id, username,))
+    c.execute('''DELETE FROM users WHERE project_id = ? AND username = ?''', (project_id, username))
     conn.commit()
     conn.close()
 
