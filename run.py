@@ -48,7 +48,7 @@ def main():
     create_database()
 
     # Display form for user input
-    project_id = st.sidebar.text_input("Enter Project ID:")
+    project_id = st.selectbox("Select Project ID:", ["Project A", "Project B", "Project C"])
     username = st.text_input("Enter your username:")
     email = st.text_input("Enter your email:")
 
@@ -70,15 +70,15 @@ def main():
 
     # Display users with the same project ID
     if project_id:
-        st.header("Users in Project:")
+        st.sidebar.header("Active Users")
         project_users = get_users_by_project_id(project_id)
         for user in project_users:
-            st.write(f"Username: {user[1]}")
-            st.write(f"Email: {user[2]}")
+            st.sidebar.write(f"Username: {user[1]}")
+            st.sidebar.write(f"Email: {user[2]}")
             if user[4] is not None:
                 # Display uploaded image
                 image = Image.open(io.BytesIO(user[4]))
-                st.image(image, caption='Uploaded Image', use_column_width=True)
+                st.sidebar.image(image, caption='Uploaded Image', use_column_width=True)
 
 if __name__ == "__main__":
     main()
