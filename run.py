@@ -77,7 +77,7 @@ def main():
     st.markdown(
     """
     <style>
-    .sidebar {
+    .stSidebarContent {
         font-family: 'Arial', sans-serif !important; /* Change font family */
         font-size: 16px !important; /* Change font size */
     }
