@@ -7,12 +7,14 @@ import io
 def create_database():
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users
+    # Create the new users table
+    c.execute('''CREATE TABLE users
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                  username TEXT NOT NULL, 
                  email TEXT NOT NULL, 
                  project_id TEXT NOT NULL,
                  image BLOB)''')
+    
     conn.commit()
     conn.close()
 
@@ -20,7 +22,6 @@ def create_database():
 def insert_user_data(username, email, project_id, image):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DROP TABLE IF EXISTS users''')
     c.execute('''INSERT INTO users (username, email, project_id, image) VALUES (?, ?, ?, ?)''',
               (username, email, project_id, image))
     conn.commit()
