@@ -92,14 +92,21 @@ def main():
         project_id = st.session_state.get("project_id")
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
-
-            # Input project ID for deletion
-            delete_project_id = st.text_input("Enter Project ID to delete:")
-
             # Delete project button
             if st.button("Delete Project", key="delete_button"):
-                delete_records_by_project_id(delete_project_id)
-                st.success(f"All records for project ID '{delete_project_id}' have been deleted.")
+                delete_records_by_project_id(project_id)
+                st.success(f"All records for project ID '{project_id}' have been deleted.")
+
+            # Display users with the same project ID
+            st.sidebar.header("Active Users")
+            project_users = get_users_by_project_id(project_id)
+            for user in project_users:
+                st.sidebar.write(f"Username: {user[1]}")
+                st.sidebar.write(f"Email: {user[2]}")
+                if user[4] is not None:
+                    # Display uploaded image with smaller size
+                    image = Image.open(io.BytesIO(user[4]))
+                    st.sidebar.image(image, width=100, caption=user[1])
 
 if __name__ == "__main__":
     main()
