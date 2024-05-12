@@ -92,7 +92,7 @@ def main():
             if user[4] is not None:
                 # Display uploaded image with smaller size
                 image = Image.open(io.BytesIO(user[4]))
-                st.sidebar.image(image, width=100)
+                st.sidebar.image(image, use_column_width=True)
     
 if __name__ == "__main__":
     main()
