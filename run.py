@@ -20,6 +20,7 @@ def create_database():
 def insert_user_data(username, email, project_id, image):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
+    c.execute('''DROP TABLE IF EXISTS users''')
     c.execute('''INSERT INTO users (username, email, project_id, image) VALUES (?, ?, ?, ?)''',
               (username, email, project_id, image))
     conn.commit()
