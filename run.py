@@ -75,14 +75,17 @@ def main():
 
     # Custom CSS for sidebar styling
     st.markdown(
-        """
-        <style>
-            .sidebar .sidebar-content {
-                background-color: #8B0000 !important; /* Deep red color */
-            }
-        </style>
-        """,
-        unsafe_allow_html=True
+    """
+    <style>
+    .sidebar {
+        background-color: #8B0000 !important; /* Deep red color */
+    }
+    .sidebar .sidebar-content {
+        background-color: #8B0000 !important; /* Deep red color */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
     )
 
     # Page navigation
