@@ -131,17 +131,17 @@ def main():
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
 
-            # Delete project button
-            if st.button("Delete Project", key="delete_button"):
-                delete_records_by_project_id(project_id)
-                st.success(f"All records for project ID '{project_id}' have been deleted.")
-
             # Exit project button
             if st.button("Exit Project", key="exit_button"):
                 username = st.session_state.get("username")
                 if username:
                     delete_user_record(project_id, username)
                     st.success(f"You have exited Project ID '{project_id}'. Your record has been deleted.")
+            
+            # Delete project button
+            if st.button("Delete Project", key="delete_button"):
+                delete_records_by_project_id(project_id)
+                st.success(f"All records for project ID '{project_id}' have been deleted.")
 
             # Display users with the same project ID
             st.sidebar.header("Active Users")
