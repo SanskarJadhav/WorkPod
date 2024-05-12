@@ -137,6 +137,8 @@ def main():
                 if username:
                     delete_user_record(project_id, username)
                     st.success(f"You have exited Project ID '{project_id}'. Your record has been deleted.")
+                else:
+                    st.write("No username")
             
             # Delete project button
             if st.button("Delete Project", key="delete_button"):
