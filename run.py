@@ -31,13 +31,14 @@ def insert_user_data(username, email, project_id, image):
     conn.commit()
     conn.close()
 
-# Function to delete records based on project ID
-def delete_records_by_project_id(project_id):
+# Function to retrieve user data based on project ID and username
+def get_user_by_project_id_and_username(project_id, username):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id,))
-    conn.commit()
+    c.execute('''SELECT * FROM users WHERE project_id = ? AND username = ?''', (project_id, username))
+    data = c.fetchone()
     conn.close()
+    return data
 
 # Function to retrieve user data based on project ID
 def get_users_by_project_id(project_id):
@@ -54,12 +55,12 @@ def main():
     create_database()
 
     # Set page title and navigation
-    st.set_page_config(page_title="Project Registration", layout="wide", initial_sidebar_state="collapsed")
+    st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="collapsed")
 
     # Page navigation
-    page = st.sidebar.radio("Navigation", ["Project Registration", "Project Dashboard"])
+    page = st.sidebar.radio("Navigation", ["Registration", "Login", "Dashboard"])
 
-    if page == "Project Registration":
+    if page == "Registration":
         st.title("Project Registration")
 
         # Display form for user input
@@ -73,29 +74,54 @@ def main():
         # Save user data to database upon form submission
         if st.button("Submit"):
             if project_id and username and email:
-                if uploaded_image is not None:
-                    # Convert uploaded image to bytes
-                    image_bytes = uploaded_image.read()
-                    insert_user_data(username, email, project_id, image_bytes)
-                    st.success("You have successfully registered!")
-                    st.session_state.project_id = project_id
-                    st.rerun()
+                existing_user = get_user_by_project_id_and_username(project_id, username)
+                if existing_user is None:
+                    if uploaded_image is not None:
+                        # Convert uploaded image to bytes
+                        image_bytes = uploaded_image.read()
+                        insert_user_data(username, email, project_id, image_bytes)
+                        st.success("You have successfully registered!")
+                    else:
+                        st.error("Please upload a profile image.")
                 else:
-                    st.error("Please upload a profile image.")
+                    st.success("You are already registered!")
             else:
                 st.error("Please fill in all the fields.")
 
-    elif page == "Project Dashboard":
+    elif page == "Login":
+        st.title("Login")
+
+        # Display form for user input
+        project_id = st.text_input("Enter Project ID:")
+        username = st.text_input("Enter your username:")
+
+        # Login button
+        if st.button("Login"):
+            if project_id and username:
+                existing_user = get_user_by_project_id_and_username(project_id, username)
+                if existing_user is not None:
+                    st.session_state.project_id = project_id
+                    st.success("Login successful!")
+                else:
+                    st.error("Invalid project ID or username.")
+            else:
+                st.error("Please fill in all the fields.")
+
+    elif page == "Dashboard":
         st.title("Project Dashboard")
 
         # Display user's project ID
         project_id = st.session_state.get("project_id")
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
+
+            # Input project ID for deletion
+            delete_project_id = st.text_input("Enter Project ID to delete:")
+
             # Delete project button
             if st.button("Delete Project", key="delete_button"):
-                delete_records_by_project_id(project_id)
-                st.success(f"All records for project ID '{project_id}' have been deleted.")
+                delete_records_by_project_id(delete_project_id)
+                st.success(f"All records for project ID '{delete_project_id}' have been deleted.")
 
             # Display users with the same project ID
             st.sidebar.header("Active Users")
@@ -106,7 +132,7 @@ def main():
                 if user[4] is not None:
                     # Display uploaded image with smaller size
                     image = Image.open(io.BytesIO(user[4]))
-                    st.sidebar.image(image, width=100, caption=user[1])
+                    st.sidebar.image(image, use_column_width=True, caption=user[1])
 
 if __name__ == "__main__":
     main()
