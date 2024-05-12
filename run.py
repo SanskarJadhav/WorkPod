@@ -78,10 +78,8 @@ def main():
     """
     <style>
     .sidebar {
-        background-color: #8B0000 !important; /* Deep red color */
-    }
-    .sidebar .sidebar-content {
-        background-color: #8B0000 !important; /* Deep red color */
+        font-family: 'Arial', sans-serif !important; /* Change font family */
+        font-size: 16px !important; /* Change font size */
     }
     </style>
     """,
