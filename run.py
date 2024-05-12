@@ -3,20 +3,23 @@ import sqlite3
 from PIL import Image
 import io
 
-# Function to create SQLite database and table
+# Function to create SQLite database and table if not exists
 def create_database():
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    # Create the new users table
-    c.execute('''DROP TABLE IF EXISTS users''')
-    c.execute('''CREATE TABLE users
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                 username TEXT NOT NULL, 
-                 email TEXT NOT NULL, 
-                 project_id TEXT NOT NULL,
-                 image BLOB)''')
     
-    conn.commit()
+    # Check if the users table exists
+    c.execute('''SELECT count(name) FROM sqlite_master WHERE type='table' AND name='users' ''')
+    if c.fetchone()[0] == 0:
+        # Create the new users table
+        c.execute('''CREATE TABLE users
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                     username TEXT NOT NULL, 
+                     email TEXT NOT NULL, 
+                     project_id TEXT NOT NULL,
+                     image BLOB)''')
+        conn.commit()
+    
     conn.close()
 
 # Function to insert user data into the database
