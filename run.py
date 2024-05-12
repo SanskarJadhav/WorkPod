@@ -31,6 +31,14 @@ def insert_user_data(username, email, project_id, image):
     conn.commit()
     conn.close()
 
+# Function to delete records based on project ID
+def delete_records_by_project_id(project_id):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id,))
+    conn.commit()
+    conn.close()
+
 # Function to retrieve user data based on project ID
 def get_users_by_project_id(project_id):
     conn = sqlite3.connect('user_data.db')
@@ -68,6 +76,12 @@ def main():
         else:
             st.error("Please fill in all the fields.")
 
+    # Delete records based on project ID
+    if st.button("Delete Project"):
+        if project_id:
+            delete_records_by_project_id(project_id)
+            st.success(f"All records for project ID '{project_id}' have been deleted.")
+
     # Display users with the same project ID
     if project_id:
         st.sidebar.header("Active Users")
@@ -76,9 +90,9 @@ def main():
             st.sidebar.write(f"Username: {user[1]}")
             st.sidebar.write(f"Email: {user[2]}")
             if user[4] is not None:
-                # Display uploaded image
+                # Display uploaded image with smaller size
                 image = Image.open(io.BytesIO(user[4]))
-                st.sidebar.image(image, caption='Uploaded Image', use_column_width=True)
-
+                st.sidebar.image(image, width=100)
+    
 if __name__ == "__main__":
     main()
