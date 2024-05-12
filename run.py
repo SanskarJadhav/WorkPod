@@ -50,49 +50,52 @@ def get_users_by_project_id(project_id):
 
 # Main Streamlit app
 def main():
-    st.title("Project Team Dashboard")
-
     # Create SQLite database if it doesn't exist
     create_database()
 
-    # Display form for user input
-    project_id = st.selectbox("Select Project ID:", ["Project A", "Project B", "Project C"])
-    username = st.text_input("Enter your username:")
-    email = st.text_input("Enter your email:")
+    # Set page title and navigation
+    st.set_page_config(page_title="Project Registration", layout="wide", initial_sidebar_state="collapsed")
 
-    # Image upload
-    uploaded_image = st.file_uploader("Upload Profile Image", type=['jpg', 'jpeg', 'png'])
+    # Page navigation
+    page = st.sidebar.radio("Navigation", ["Project Registration", "Project Dashboard"])
 
-    # Save user data to database upon form submission
-    if st.button("Submit"):
-        if project_id and username and email:
-            if uploaded_image is not None:
-                # Convert uploaded image to bytes
-                image_bytes = uploaded_image.read()
-                insert_user_data(username, email, project_id, image_bytes)
-                st.success("You have successfully registered!")
+    if page == "Project Registration":
+        st.title("Project Registration")
+
+        # Display form for user input
+        project_id = st.text_input("Enter Project ID:")
+        username = st.text_input("Enter your username:")
+        email = st.text_input("Enter your email:")
+
+        # Image upload
+        uploaded_image = st.file_uploader("Upload Profile Image", type=['jpg', 'jpeg', 'png'])
+
+        # Save user data to database upon form submission
+        if st.button("Submit"):
+            if project_id and username and email:
+                if uploaded_image is not None:
+                    # Convert uploaded image to bytes
+                    image_bytes = uploaded_image.read()
+                    insert_user_data(username, email, project_id, image_bytes)
+                    st.success("You have successfully registered!")
+                    st.experimental_rerun()
+                else:
+                    st.error("Please upload a profile image.")
             else:
-                st.error("Please upload a profile image.")
-        else:
-            st.error("Please fill in all the fields.")
+                st.error("Please fill in all the fields.")
 
-    # Delete records based on project ID
-    if st.button("Delete Project"):
+    elif page == "Project Dashboard":
+        st.title("Project Dashboard")
+
+        # Display user's project ID
+        project_id = st.session_state.get("project_id")
         if project_id:
-            delete_records_by_project_id(project_id)
-            st.success(f"All records for project ID '{project_id}' have been deleted.")
+            st.write(f"You are currently working on Project ID: {project_id}")
 
-    # Display users with the same project ID
-    if project_id:
-        st.sidebar.header("Active Users")
-        project_users = get_users_by_project_id(project_id)
-        for user in project_users:
-            st.sidebar.write(f"Username: {user[1]}")
-            st.sidebar.write(f"Email: {user[2]}")
-            if user[4] is not None:
-                # Display uploaded image with smaller size
-                image = Image.open(io.BytesIO(user[4]))
-                st.sidebar.image(image, use_column_width=True)
-    
+            # Delete project button
+            if st.button("Delete Project"):
+                delete_records_by_project_id(project_id)
+                st.success("Project deleted successfully!")
+
 if __name__ == "__main__":
     main()
