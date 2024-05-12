@@ -76,21 +76,12 @@ def main():
     # Custom CSS for sidebar styling
     st.markdown(
         """
-    <style>
-    .sidebar .sidebar-content {
-        background-color: #f8f9fa !important;
-        padding: 20px !important;
-        border-radius: 10px !important;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1) !important;
-    }
-    .sidebar .sidebar-content .sidebar-section {
-        margin-bottom: 20px !important;
-    }
-    .sidebar .sidebar-content .sidebar-section:last-child {
-        margin-bottom: 0 !important;
-    }
-    </style>
-    """,
+        <style>
+            .sidebar .sidebar-content {
+                background-color: #8B0000 !important; /* Deep red color */
+            }
+        </style>
+        """,
         unsafe_allow_html=True
     )
 
