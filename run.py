@@ -3,6 +3,7 @@ import sqlite3
 import requests
 from PIL import Image
 import io
+from streamlit_extras.switch_page_button import switch_page
 
 # Function to create SQLite database and table if not exists
 def create_database():
@@ -102,6 +103,7 @@ def main():
                         image_bytes = uploaded_image.read()
                         insert_user_data(username, email, project_id, image_bytes)
                         st.success("You have successfully registered!")
+                        switch_page("Login")
                     else:
                         st.error("Please upload a profile image.")
                 else:
