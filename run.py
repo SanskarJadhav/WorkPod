@@ -156,7 +156,7 @@ def main():
             for user in project_users:
                 multi = '''f"Username: {user[1]}  
                 Email: {user[2]}"'''
-                st.sidebar.markdown(multi)
+                st.sidebar.markdown({multi})
                 if user[4] is not None:
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
