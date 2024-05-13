@@ -82,7 +82,7 @@ def main():
 
     if page == "Registration":
         st.title("Project Registration")
-        st.header(divider="rainbow")
+        st.header("",divider="rainbow")
 
         # Display form for user input
         project_id = st.text_input("Enter Project ID:")
