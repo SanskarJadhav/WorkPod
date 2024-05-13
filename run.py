@@ -151,7 +151,7 @@ def main():
                 st.success(f"All records for project ID '{project_id}' have been deleted.")
 
             # Display users with the same project ID
-            st.sidebar.header(":grey-background[Project Members]")
+            st.sidebar.header(":grey-background[Project Members]", divider=True)
             project_users = get_users_by_project_id(project_id)
             for user in project_users:
                 st.sidebar.markdown(f"Username: {user[1]}")
