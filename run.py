@@ -73,21 +73,10 @@ def main():
     # Set page title and navigation
     st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="expanded")  # Change sidebar state to "expanded"
 
-    # Custom CSS for sidebar styling
-    st.markdown(
-    """
-    <style>
-    .stSidebarContent {
-        font-family: 'Arial', sans-serif !important; /* Change font family */
-        font-size: 16px !important; /* Change font size */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-    )
-
+    navigation_image = Image.open("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png")
     # Page navigation
-    page = st.sidebar.radio("Navigation", ["Registration", "Login", "Dashboard"])
+    st.sidebar.image(navigation_image, caption="", use_column_width=True)
+    page = st.sidebar.radio(["Registration", "Login", "Dashboard"])
 
     if page == "Registration":
         st.title("Project Registration")
