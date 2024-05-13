@@ -71,8 +71,11 @@ def main():
     # Create SQLite database if it doesn't exist
     create_database()
     # Set page title and navigation
-    st.set_page_config(page_title="DevSpace", layout="wide", initial_sidebar_state="expanded")
-
+    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded")
+    favicon_html = """
+    <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png">
+    """
+    st.markdown(favicon_html, unsafe_allow_html=True)
     # Page navigation
     with st.sidebar:
 
@@ -92,7 +95,7 @@ def main():
          </style>
          """,
          unsafe_allow_html=True
-         )
+        )
         st.title("Register Your Account")
 
         # Display form for user input
@@ -121,6 +124,18 @@ def main():
                 st.error("Please fill in all the fields.")
 
     elif page == "Login":
+        st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+        )
         st.title("Login")
 
         # Display form for user input
