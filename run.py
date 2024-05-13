@@ -85,7 +85,7 @@ def main():
          f"""
          <style>
          .stApp {{
-             background-image: url("https://images.unsplash.com/photo-1597589827703-f4b68eafa0ce?q=80&w=1972&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+             background-image: url("https://images.unsplash.com/photo-1541256942802-7b29531f0df8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
              background-attachment: fixed;
              background-size: cover
          }}
