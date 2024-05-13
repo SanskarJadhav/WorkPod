@@ -75,7 +75,7 @@ def main():
     # Page navigation
     with st.sidebar:
 
-        st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpod.png", width=200)
+        st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpodtitle.png", width=200)
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/wordcloud.png", width=200)
         page = st.radio("", ["Registration", "Login", "OneDash"])
 
