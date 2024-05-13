@@ -191,10 +191,10 @@ def main():
                 st.warning('Please enter your Replicate API token.', icon='⚠️')
                 st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
 
-        os.environ['REPLICATE_API_TOKEN'] = replicate_api
-        st.subheader("Adjust model parameters")
-        temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.3, step=0.01)
-        top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
+            os.environ['REPLICATE_API_TOKEN'] = replicate_api
+            st.subheader("Adjust model parameters")
+            temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=2.0, value=0.5, step=0.1)
+            top_p = st.sidebar.slider('top_p', min_value=0.05, max_value=1.0, value=0.9, step=0.05)
 
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
