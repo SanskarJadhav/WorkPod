@@ -85,7 +85,7 @@ def main():
          f"""
          <style>
          .stApp {{
-             background-image: url("https://img.freepik.com/free-vector/realistic-ice-skating-background_23-2150974029.jpg");
+             background-image: url("https://png.pngtree.com/background/20210711/original/pngtree-abstract-metallic-blue-black-frame-layout-modern-tech-design-template-picture-image_1155756.jpg");
              background-attachment: fixed;
              background-size: cover
          }}
