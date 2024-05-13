@@ -75,16 +75,7 @@ def main():
 
     # Page navigation
     with st.sidebar:
-        st.markdown(
-    """
-    <style>
-    .sidebar .widget-label {
-        font-size: 20px; /* Change font size */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png", width=200)
         page = st.radio("", ["Registration", "Login", "Dashboard"])
 
