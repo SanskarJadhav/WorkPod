@@ -85,7 +85,7 @@ def main():
          f"""
          <style>
          .stApp {{
-             background-image: url("https://img.freepik.com/free-vector/elegant-business-wavy-curvy-lines-blue-backdrop-presentation-vector_1017-46615.jpg");
+             background-image: url("https://img.freepik.com/free-vector/realistic-ice-skating-background_23-2150941325.jpg");
              background-attachment: fixed;
              background-size: cover
          }}
