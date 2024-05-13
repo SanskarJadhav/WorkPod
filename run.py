@@ -79,8 +79,8 @@ def main():
         """
         <style>
         .sidebar .sidebar-content {
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: -10px;
+            padding-bottom: -10px;
         }
         </style>
         """,
