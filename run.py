@@ -70,12 +70,14 @@ def get_users_by_project_id(project_id):
 def main():
     # Create SQLite database if it doesn't exist
     create_database()
-    navigation_image_url = "https://raw.githubusercontent.com/your_username/your_repository/main/navigation_wordart.png"  # Replace with your image URL
-    navigation_image = Image.open(requests.get(navigation_image_url, stream=True).raw)
-
     # Set page title and navigation
     st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="expanded")
-    page = st.sidebar.radio("", ["Registration", "Login", "Dashboard"])
+
+    # Page navigation
+    with st.sidebar:
+        st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png", use_column_width=True)
+        page = st.radio(" ", ["Registration", "Login", "Dashboard"])
+
 
     if page == "Registration":
         st.title("Project Registration")
