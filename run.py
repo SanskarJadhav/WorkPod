@@ -153,7 +153,7 @@ def main():
                 st.error("Please fill in all the fields.")
 
     elif page == "OneDash":
-        st.title("OneDast: Project Dashboard")
+        st.title("OneDash: Project Dashboard")
         st.header("",divider="rainbow")
 
         # Display user's project ID
