@@ -76,7 +76,7 @@ def main():
     # Page navigation
     with st.sidebar:
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png", use_column_width=True)
-        page = st.radio(, ["Registration", "Login", "Dashboard"])
+        page = st.radio(["Registration", "Login", "Dashboard"])
 
 
     if page == "Registration":
