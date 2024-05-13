@@ -3,6 +3,12 @@ import sqlite3
 import requests
 from PIL import Image
 import io
+import replicate
+import os
+from transformers import AutoTokenizer
+
+# Set assistant icon to Snowflake logo
+icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "🐬"}
 
 # Function to create SQLite database and table if not exists
 def create_database():
@@ -41,14 +47,6 @@ def get_user_by_project_id_and_username(project_id, username):
     conn.close()
     return data
 
-# Function to delete records based on project ID
-def delete_records_by_project_id(project_id):
-    conn = sqlite3.connect('user_data.db')
-    c = conn.cursor()
-    c.execute('''DELETE FROM users WHERE project_id = ?''', (project_id,))
-    conn.commit()
-    conn.close()
-
 # Function to delete user record based on project ID and username
 def delete_user_record(project_id, username):
     conn = sqlite3.connect('user_data.db')
@@ -77,7 +75,7 @@ def main():
 
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpod.png", use_column_width=True)
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/dolphinwordcloud.png", use_column_width=True)
-        page = st.radio("", ["Registration", "Login", "OneDash"])
+        page = st.radio("", ["Registration", "Login", "OneDash", "Arctic"])
 
 
     if page == "Registration":
@@ -169,14 +167,6 @@ def main():
                     st.success(f"You have exited Project ID '{project_id}'. Your record has been removed.")
                 else:
                     st.write("No username. Please log in first.")
-            
-            # Delete project button
-            if st.button("Delete Project", key="delete_button"):
-                if username:
-                    delete_records_by_project_id(project_id)
-                    st.success(f"All records for project ID '{project_id}' have been removed.")
-                else:
-                    st.write("No username. Please log in first.")
 
             # Display users with the same project ID
             st.sidebar.header(":grey-background[Project Members]")
@@ -188,6 +178,88 @@ def main():
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
+
+    elif page == "Arctic":
+        st.title("Arctic LLM Chatbot")
+        with st.sidebar:
+            st.title('Snowflake Arctic')
+            if 'REPLICATE_API_TOKEN' in st.secrets:
+                replicate_api = st.secrets['REPLICATE_API_TOKEN']
+            else:
+                replicate_api = st.text_input('Enter Replicate API token:', type='password')
+            if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                st.warning('Please enter your Replicate API token.', icon='⚠️')
+                st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+
+        os.environ['REPLICATE_API_TOKEN'] = replicate_api
+        st.subheader("Adjust model parameters")
+        temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.3, step=0.01)
+        top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
+
+        # Store LLM-generated responses
+        if "messages" not in st.session_state.keys():
+            st.session_state.messages = [{"role": "assistant", "content": "Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+
+        # Display or clear chat messages
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"], avatar=icons[message["role"]]):
+                st.write(message["content"])
+    
+        def clear_chat_history():
+            st.session_state.messages = [{"role": "assistant", "content": "Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+        
+        st.sidebar.button('Clear chat history', on_click=clear_chat_history)
+
+        @st.cache_resource(show_spinner=False)
+        def get_tokenizer():
+            return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
+
+        def get_num_tokens(prompt):
+            """Get the number of tokens in a given prompt"""
+            tokenizer = get_tokenizer()
+            tokens = tokenizer.tokenize(prompt)
+            return len(tokens)
+    
+        # Function for generating Snowflake Arctic response
+        def generate_arctic_response():
+            prompt = []
+            for dict_message in st.session_state.messages:
+                if dict_message["role"] == "user":
+                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+                else:
+                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+            
+            prompt.append("<|im_start|>assistant")
+            prompt.append("Cool! ")
+            prompt_str = "\n".join(prompt)
+            
+            if get_num_tokens(prompt_str) >= 3072:
+                st.error("Conversation length too long. Please keep it under 3072 tokens.")
+                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+                st.stop()
+        
+            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                input={"prompt": prompt_str,
+                                  "prompt_template": r"{prompt}",
+                                  "temperature": temperature,
+                                  "top_p": top_p,
+                                  }):
+                yield str(event)
+
+        # User-provided prompt
+        if prompt := st.chat_input(disabled=not replicate_api):
+            st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
+            with st.chat_message("user", avatar="🐬"):
+                st.write(prompt)
+
+        # Generate a new response if last message is not from assistant
+        if st.session_state.messages[-1]["role"] != "assistant":
+            with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
+                response = generate_arctic_response()
+                full_response = st.write_stream(response)
+            message = {"role": "assistant", "content": full_response}
+            st.session_state.messages.append(message)
+
 
 if __name__ == "__main__":
     main()
