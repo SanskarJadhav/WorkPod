@@ -71,7 +71,7 @@ def main():
     # Create SQLite database if it doesn't exist
     create_database()
     # Set page title and navigation
-    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WPicon.png")
+    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png")
     # Page navigation
     with st.sidebar:
 
