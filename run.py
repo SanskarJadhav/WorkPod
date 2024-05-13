@@ -85,7 +85,7 @@ def main():
          f"""
          <style>
          .stApp {{
-             background-image: url("https://img.freepik.com/free-vector/gradient-galaxy-background_23-2148969748.jpg?t=st=1715592360~exp=1715595960~hmac=6832bf5f1f43114fd8537520c4f50af7e662d8ca959fe1106f9d772f6fa40c38&w=900");
+             background-image: url("https://img.freepik.com/free-vector/gradient-galaxy-background_23-2148971859.jpg");
              background-attachment: fixed;
              background-size: cover
          }}
