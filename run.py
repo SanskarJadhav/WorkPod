@@ -71,7 +71,7 @@ def main():
     # Create SQLite database if it doesn't exist
     create_database()
     # Set page title and navigation
-    st.set_page_config(page_title="Project Dashboard", layout="wide", initial_sidebar_state="expanded")
+    st.set_page_config(page_title="DevSpace", layout="wide", initial_sidebar_state="expanded")
 
     # Page navigation
     with st.sidebar:
@@ -85,7 +85,7 @@ def main():
          f"""
          <style>
          .stApp {{
-             background-image: url("https://img.freepik.com/free-vector/northern-lights-blue-decorative-background_23-2148259831.jpg");
+             background-image: url("https://img.freepik.com/free-vector/elegant-business-wavy-curvy-lines-blue-backdrop-presentation-vector_1017-46615.jpg");
              background-attachment: fixed;
              background-size: cover
          }}
