@@ -1,5 +1,6 @@
 import streamlit as st
 import sqlite3
+import requests
 from PIL import Image
 import io
 
