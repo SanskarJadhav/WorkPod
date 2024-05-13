@@ -181,6 +181,7 @@ def main():
 
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
+        username = st.session_state.get("username")
         with st.sidebar:
             st.title('Snowflake Arctic')
             if 'REPLICATE_API_TOKEN' in st.secrets:
@@ -193,12 +194,12 @@ def main():
 
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Adjust model parameters")
-            temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=2.0, value=0.5, step=0.1)
+            temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.8, step=0.1)
             top_p = st.sidebar.slider('top_p', min_value=0.05, max_value=1.0, value=0.9, step=0.05)
 
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
-            st.session_state.messages = [{"role": "assistant", "content": "Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
 
         # Display or clear chat messages
         for message in st.session_state.messages:
@@ -206,7 +207,7 @@ def main():
                 st.write(message["content"])
     
         def clear_chat_history():
-            st.session_state.messages = [{"role": "assistant", "content": "Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
         
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
 
