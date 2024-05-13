@@ -75,20 +75,7 @@ def main():
 
     # Page navigation
     with st.sidebar:
-        st.markdown(
-        """
-        <style>
-        .sidebar .widget.stRadio div div label span {
-            color: black; /* Unselected radio button text color */
-        }
-        .sidebar .widget.stRadio div div label input:checked+span {
-            color: lightblue; /* Selected radio button text color */
-            font-weight: bold; /* Make the selected text bold */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-        )
+        
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png", width=200)
         page = st.radio("", ["Registration", "Login", "Dashboard"])
 
