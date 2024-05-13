@@ -1,2 +1,2 @@
-# profileweb
-Test repo for updating streamlit page as a user
+# WorkPod
+Streamlit website for connecting project developers with an AI powered dashboard and personalized working environment.
