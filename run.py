@@ -94,7 +94,6 @@ def main():
          unsafe_allow_html=True
          )
         st.title("Register Your Account")
-        st.header("",divider="rainbow")
 
         # Display form for user input
         project_id = st.text_input("Enter Project ID:")
@@ -123,7 +122,6 @@ def main():
 
     elif page == "Login":
         st.title("Login")
-        st.header("",divider="rainbow")
 
         # Display form for user input
         project_id = st.text_input("Enter Project ID:")
