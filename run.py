@@ -157,7 +157,6 @@ def main():
                 multi = '''Username: {user[1]}  
                 Email: {user[2]}'''
                 st.sidebar.markdown(f"{multi}")
-                Email: {user[2]}")
                 if user[4] is not None:
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
