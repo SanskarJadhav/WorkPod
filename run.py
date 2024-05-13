@@ -183,7 +183,6 @@ def main():
         st.title("Arctic LLM Chatbot")
         username = st.session_state.get("username")
         with st.sidebar:
-            st.title('Snowflake Arctic')
             if 'REPLICATE_API_TOKEN' in st.secrets:
                 replicate_api = st.secrets['REPLICATE_API_TOKEN']
             else:
@@ -193,9 +192,8 @@ def main():
                 st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
 
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
-            st.subheader("Adjust model parameters")
+            st.subheader("Model Creativity Control")
             temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.8, step=0.1)
-            top_p = st.sidebar.slider('top_p', min_value=0.05, max_value=1.0, value=0.9, step=0.05)
 
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
@@ -243,7 +241,7 @@ def main():
                                 input={"prompt": prompt_str,
                                   "prompt_template": r"{prompt}",
                                   "temperature": temperature,
-                                  "top_p": top_p,
+                                  "top_p": 0.9,
                                   }):
                 yield str(event)
 
