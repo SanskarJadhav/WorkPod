@@ -154,9 +154,7 @@ def main():
             st.sidebar.header(":grey-background[Project Members]")
             project_users = get_users_by_project_id(project_id)
             for user in project_users:
-                multi = '''f"Username: {user[1]}  
-                Email: {user[2]}"'''
-                st.sidebar.markdown({multi})
+                st.sidebar.markdown(f"Username: {user[1]}", f"Email: {user[2]}")
                 if user[4] is not None:
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
