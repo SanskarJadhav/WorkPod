@@ -71,11 +71,7 @@ def main():
     # Create SQLite database if it doesn't exist
     create_database()
     # Set page title and navigation
-    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded")
-    favicon_html = """
-    <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png">
-    """
-    st.markdown(favicon_html, unsafe_allow_html=True)
+    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png")
     # Page navigation
     with st.sidebar:
 
