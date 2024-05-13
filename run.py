@@ -77,11 +77,11 @@ def main():
     with st.sidebar:
 
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/navigation-word-art.png", width=200)
-        page = st.radio("", ["Registration", "Login", "Dashboard"])
+        page = st.radio("", ["Registration", "Login", "OneDash"])
 
 
     if page == "Registration":
-        st.title("Project Registration")
+        st.title("Register Your Account")
         st.header("",divider="rainbow")
 
         # Display form for user input
@@ -111,6 +111,7 @@ def main():
 
     elif page == "Login":
         st.title("Login")
+        st.header("",divider="rainbow")
 
         # Display form for user input
         project_id = st.text_input("Enter Project ID:")
@@ -123,15 +124,15 @@ def main():
                 if existing_user is not None:
                     st.session_state.project_id = project_id
                     st.session_state.username = username
-                    st.success("Login successful! Please head to Dashboard.")
-                    page = "Dashboard"
+                    st.success("Login successful! Please continue.")
                 else:
                     st.error("Invalid project ID or username.")
             else:
                 st.error("Please fill in all the fields.")
 
-    elif page == "Dashboard":
+    elif page == "OneDash":
         st.title("Project Dashboard")
+        st.header("",divider="rainbow")
 
         # Display user's project ID
         project_id = st.session_state.get("project_id")
@@ -143,14 +144,17 @@ def main():
             if st.button("Exit Project", key="exit_button"):
                 if username:
                     delete_user_record(project_id, username)
-                    st.success(f"You have exited Project ID '{project_id}'. Your record has been deleted.")
+                    st.success(f"You have exited Project ID '{project_id}'. Your record has been removed.")
                 else:
-                    st.write("No username")
+                    st.write("No username. Please log in first.")
             
             # Delete project button
             if st.button("Delete Project", key="delete_button"):
-                delete_records_by_project_id(project_id)
-                st.success(f"All records for project ID '{project_id}' have been deleted.")
+                if username:
+                    delete_records_by_project_id(project_id)
+                    st.success(f"All records for project ID '{project_id}' have been removed.")
+                else:
+                    st.write("No username. Please log in first.")
 
             # Display users with the same project ID
             st.sidebar.header(":grey-background[Project Members]")
