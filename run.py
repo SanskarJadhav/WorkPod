@@ -227,7 +227,6 @@ def main():
                                           "temperature": temperature,
                                           "top_p": 0.9,
                                           }):
-                task = event.strip()  # Remove leading/trailing whitespace
                 yield task  # Yield the task as a string
                 tasks.append(task)  # Append the task to the list
             
