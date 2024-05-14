@@ -259,10 +259,6 @@ def main():
             if st.button("Push to OneDash"):
                 push_to_onedash()
 
-# Button to trigger pushing tasks list to memory
-if st.button("Push to OneDash"):
-    push_to_onedash()
-                            
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
