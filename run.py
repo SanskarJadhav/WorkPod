@@ -5,6 +5,7 @@ from PIL import Image
 import io
 import replicate
 import os
+import re
 from transformers import AutoTokenizer
 
 # Set assistant icon to Snowflake logo
