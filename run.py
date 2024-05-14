@@ -234,7 +234,7 @@ def main():
     
 
     elif page == "Arctic":
-        st.title("Arctic LLM Chatbot")
+        st.title("Let's Break The Ice!")
         username = st.session_state.get("username")
         with st.sidebar:
             if 'REPLICATE_API_TOKEN' in st.secrets:
