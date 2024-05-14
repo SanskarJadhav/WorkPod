@@ -193,7 +193,7 @@ def main():
 
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Model Creativity Control")
-            temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.8, step=0.1)
+            temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.6, step=0.1)
 
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
@@ -242,7 +242,8 @@ def main():
                                   "prompt_template": r"{prompt}",
                                   "temperature": temperature,
                                   "top_p": 0.9,
-                                  }):
+                                  "max_length": 3000
+                                }):
                 yield str(event)
 
         # User-provided prompt
