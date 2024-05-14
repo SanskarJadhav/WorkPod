@@ -64,6 +64,17 @@ def get_users_by_project_id(project_id):
     conn.close()
     return data
 
+def generate_arctic_response(prompt):
+    tasks = []
+    for dict_message in prompt:
+        if dict_message["role"] == "assistant":
+            # Split the response into lines and extract tasks
+            response_lines = dict_message["content"].split('\n')
+            for line in response_lines:
+                if line.strip().startswith('-'):
+                    tasks.append(line.strip()[2:])  # Remove bullet point and whitespace
+    return tasks
+
 # Main Streamlit app
 def main():
     # Create SQLite database if it doesn't exist
@@ -150,6 +161,8 @@ def main():
             else:
                 st.error("Please fill in all the fields.")
     
+    # Function for generating Snowflake Arctic response
+
     # Arctic section
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
@@ -159,18 +172,18 @@ def main():
                 replicate_api = st.secrets['REPLICATE_API_TOKEN']
             else:
                 replicate_api = st.text_input('Enter Replicate API token:', type='password')
-            if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
-                st.warning('Please enter your Replicate API token.', icon='⚠️')
-                st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+                if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                    st.warning('Please enter your Replicate API token.', icon='⚠️')
+                    st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
 
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Model Creativity Control")
             temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.6, step=0.1)
-
+    
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
             st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
-
+    
         # Display or clear chat messages
         for message in st.session_state.messages:
             with st.chat_message(message["role"], avatar=icons[message["role"]]):
@@ -180,57 +193,37 @@ def main():
             st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
         
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
-
+    
         @st.cache_resource(show_spinner=False)
         def get_tokenizer():
             return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
-
+    
         def get_num_tokens(prompt):
             """Get the number of tokens in a given prompt"""
             tokenizer = get_tokenizer()
             tokens = tokenizer.tokenize(prompt)
             return len(tokens)
     
-        # Function for generating Snowflake Arctic response
-        def generate_arctic_response():
-            prompt = []
-            for dict_message in st.session_state.messages:
-                if dict_message["role"] == "user":
-                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
-                else:
-                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
-            
-            prompt.append("<|im_start|>assistant")
-            prompt.append("Cool! ")
-            prompt_str = "\n".join(prompt)
-            
-            if get_num_tokens(prompt_str) >= 3072:
-                st.error("Conversation length too long. Please keep it under 3072 tokens.")
-                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
-                st.stop()
-        
-            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                                input={"prompt": prompt_str,
-                                  "prompt_template": r"{prompt}",
-                                  "temperature": temperature,
-                                  "top_p": 0.9
-                                }):
-                yield str(event)
-
+        # Function to push tasks to OneDash
+        def push_to_onedash(tasks):
+            st.session_state.onedash_tasks = tasks
+    
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
-
+    
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response()
-                full_response = st.write_stream(response)
-            message = {"role": "assistant", "content": full_response}
-            st.session_state.messages.append(message)
-
+                response = generate_arctic_response(st.session_state.messages)
+                if response:
+                    st.write("Tasks generated:")
+                    for task in response:
+                        st.write(f"- {task}")
+                    st.button("Push to OneDash", on_click=push_to_onedash(response))
+    
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
@@ -266,6 +259,7 @@ def main():
                 st.subheader("Tasks from Arctic as To-Dos:")
                 for i, task in enumerate(st.session_state.onedash_tasks):
                     st.write(f"- To-Do {i+1}: {task}")
+    
 
 if __name__ == "__main__":
     main()
