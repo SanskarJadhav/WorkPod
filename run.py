@@ -7,6 +7,7 @@ import replicate
 import os
 import re
 from transformers import AutoTokenizer
+import plotly.express as px
 
 # Set assistant icon to Snowflake logo
 icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "🐬"}
@@ -75,6 +76,24 @@ def get_tasks_by_project_id(project_id):
     tasks = c.fetchall()
     conn.close()
     return tasks
+
+# Function to retrieve completed and remaining tasks
+def get_completed_and_remaining_tasks(project_id):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''SELECT COUNT(*), SUM(completed) FROM tasks WHERE project_id = ?''', (project_id,))
+    completed, remaining = c.fetchone()
+    conn.close()
+    return completed, remaining
+
+# Function to retrieve user contributions
+def get_user_contributions(project_id):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''SELECT completed_by, COUNT(*) FROM tasks WHERE project_id = ? AND completed = 1 GROUP BY completed_by''', (project_id,))
+    user_contributions = c.fetchall()
+    conn.close()
+    return user_contributions
 
 # Function to insert user data into the database
 def insert_user_data(username, email, project_id, image):
@@ -335,32 +354,44 @@ def main():
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
-    
-            if project_id:
-                tasks = get_tasks_by_project_id(project_id)
-                if tasks:
-                    st.subheader("Tasks from Arctic as To-Dos:")
-                    for task in tasks:
-                        task_id, _, task_description, completed, completed_by = task
-                        if task_description[0].isdigit():
-                            st.write(f":blue[{task_description}]")
-                        else:
-                            st.write(f"- {task_description}")
-                        # Checkbox for marking task as completed
-                        if not completed:
-                            completed = st.checkbox("Completed", key=f"completed_{task_id}")
-                            if completed:
-                                mark_task_as_completed(task_id, username)
-                        else:
-                            st.markdown(f":green[Task completed by:] {completed_by}")
-                        # Button to delete task
-                        if st.button("Delete", key=f"delete_{task_id}"):
-                            delete_task(task_id)
-                            st.success("Task deleted!")
-                else:
-                    st.info("No tasks available.")
-            else:
-                st.info("Please log in first")
 
+            # Display completed vs. remaining tasks chart
+            completed, remaining = get_completed_and_remaining_tasks(project_id)
+            tasks_data = {"Status": ["Completed", "Remaining"], "Count": [completed, remaining]}
+            tasks_df = pd.DataFrame(tasks_data)
+            st.subheader("Completed vs. Remaining Tasks")
+            st.bar_chart(tasks_df, x="Status", y="Count")
+    
+            # Display user contributions pie chart
+            user_contributions = get_user_contributions(project_id)
+            user_contributions_df = pd.DataFrame(user_contributions, columns=["User", "Completed Tasks"])
+            st.subheader("User Contributions")
+            st.plotly_chart(px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions"))
+        
+            tasks = get_tasks_by_project_id(project_id)
+            if tasks:
+                st.subheader("Tasks from Arctic as To-Dos:")
+                for task in tasks:
+                    task_id, _, task_description, completed, completed_by = task
+                    if task_description[0].isdigit():
+                        st.write(f":blue[{task_description}]")
+                    else:
+                        st.write(f"- {task_description}")
+                    # Checkbox for marking task as completed
+                    if not completed:
+                        completed = st.checkbox("Completed", key=f"completed_{task_id}")
+                        if completed:
+                            mark_task_as_completed(task_id, username)
+                    else:
+                        st.markdown(f":green[Task completed by:] {completed_by}")
+                    # Button to delete task
+                    if st.button("Delete", key=f"delete_{task_id}"):
+                        delete_task(task_id)
+                        st.success("Task deleted!")
+            else:
+                st.info("No tasks available.")
+        else:
+            st.info("Please log in first")
+            
 if __name__ == "__main__":
     main()
