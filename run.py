@@ -26,9 +26,55 @@ def create_database():
                      email TEXT NOT NULL, 
                      project_id TEXT NOT NULL,
                      image BLOB)''')
-        conn.commit()
     
+    # Check if the tasks table exists
+    c.execute('''SELECT count(name) FROM sqlite_master WHERE type='table' AND name='tasks' ''')
+    if c.fetchone()[0] == 0:
+        # Create the new tasks table
+        c.execute('''CREATE TABLE tasks
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     project_id TEXT NOT NULL,
+                     task_description TEXT NOT NULL,
+                     completed BOOLEAN NOT NULL DEFAULT 0,
+                     completed_by TEXT)''')
+    
+    conn.commit()
     conn.close()
+
+# Function to insert task into the database
+def insert_task(project_id, task_description):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''INSERT INTO tasks (project_id, task_description) VALUES (?, ?)''',
+              (project_id, task_description))
+    conn.commit()
+    conn.close()
+
+# Function to mark task as completed
+def mark_task_as_completed(task_id, username):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''UPDATE tasks SET completed = 1, completed_by = ? WHERE id = ?''',
+              (username, task_id))
+    conn.commit()
+    conn.close()
+
+# Function to delete task from the database
+def delete_task(task_id):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''DELETE FROM tasks WHERE id = ?''', (task_id,))
+    conn.commit()
+    conn.close()
+
+# Function to retrieve tasks from the database
+def get_tasks_by_project_id(project_id):
+    conn = sqlite3.connect('user_data.db')
+    c = conn.cursor()
+    c.execute('''SELECT * FROM tasks WHERE project_id = ?''', (project_id,))
+    tasks = c.fetchall()
+    conn.close()
+    return tasks
 
 # Function to insert user data into the database
 def insert_user_data(username, email, project_id, image):
@@ -255,8 +301,17 @@ def main():
                     filtered_lines.append(cleaned_line)
             st.session_state.messages.append(message)
             st.session_state.tasks = filtered_lines
+            
+            # Button to save tasks to database
+            if st.button("Push to OneDash"):
+                project_id = st.session_state.get("project_id")
+                if project_id:
+                    for task_description in filtered_lines:
+                        insert_task(project_id, task_description)
+                    st.success("Tasks pushed to OneDash!")
+                else:
+                    st.error("Project ID not found. Please log in first.")
 
-    # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
         st.header("",divider="rainbow")
@@ -284,28 +339,31 @@ def main():
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
     
-            if "tasks" in st.session_state:
-                if st.session_state.tasks:
+            if project_id:
+                tasks = get_tasks_by_project_id(project_id)
+                if tasks:
                     st.subheader("Tasks from Arctic as To-Dos:")
-                    for i, task in enumerate(st.session_state.tasks):
-                        if task[0].isdigit():
-                            st.write(f"{task}")
+                    for task in tasks:
+                        task_id, _, task_description, completed, completed_by = task
+                        if task_description[0].isdigit():
+                            st.write(f"{task_description}")
                         else:
-                            st.write(f"- {task}")
-                            # Checkbox for marking task as completed
-                            completed = st.checkbox(f"Completed", key=f"completed_{i}")
-                            
-                            # Button to delete task
-                            if st.button("Delete", key=f"delete_{i}"):
-                                st.session_state.tasks.pop(i)
-                                st.success("Task deleted!")
+                            st.write(f"- {task_description}")
+                        # Checkbox for marking task as completed
+                        if not completed:
+                            completed = st.checkbox("Completed", key=f"completed_{task_id}")
+                            if completed:
+                                mark_task_as_completed(task_id, username)
+                        else:
+                            st.write(f"Task completed by: {completed_by}")
+                        # Button to delete task
+                        if st.button("Delete", key=f"delete_{task_id}"):
+                            delete_task(task_id)
+                            st.success("Task deleted!")
                 else:
                     st.info("No tasks available.")
             else:
-                st.info("Tasks not initialized.")
-        else:
-            st.info("Please log in first")
-    
+                st.info("Please log in first")
 
 if __name__ == "__main__":
     main()
