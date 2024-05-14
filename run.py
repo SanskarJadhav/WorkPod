@@ -64,14 +64,6 @@ def get_users_by_project_id(project_id):
     conn.close()
     return data
 
-def generate_arctic_response(prompt):
-    tasks = []
-    for dict_message in prompt:
-        if dict_message["role"] == "assistant":
-            # Assume the response format is "1. Task 1\n2. Task 2\n3. Task 3\n..."
-            tasks = [task.strip() for task in dict_message["content"].split('\n') if task.strip()]
-    return tasks
-
 # Main Streamlit app
 def main():
     # Create SQLite database if it doesn't exist
