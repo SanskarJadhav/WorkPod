@@ -329,7 +329,7 @@ def main():
                 st.error("Project ID not found. Please log in first.")
 
     elif page == "OneDash":
-        st.title("OneDash - Project Dashboard")
+        st.title("OneDash - Project Dashboard :bar_chart:")
         st.header("",divider="rainbow")
         project_id = st.session_state.get("project_id")
         username = st.session_state.get("username")
