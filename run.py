@@ -240,7 +240,7 @@ def main():
                 response = generate_arctic_response()
                 full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
-            pattern = r'^\d+\..*|^[*].*'
+            pattern = r'^\d+\..*|^[*].*|^-.*'
             filtered_lines = []
             for line in str(full_response).splitlines():
                 if re.match(pattern, line):
