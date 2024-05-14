@@ -234,8 +234,6 @@ def main():
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
 
-        if "tasks" not in st.session_state:
-            st.session_state.tasks = []
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
@@ -253,11 +251,7 @@ def main():
                     cleaned_line = line.strip().lstrip("* ")
                     filtered_lines.append(cleaned_line)
             st.session_state.messages.append(message)
-            def push_to_onedash(filtered_lines):
-                st.session_state.tasks.extend(filtered_lines)
-                st.success("Tasks list pushed to OneDash!")
-            if st.button("Push to OneDash"):
-                push_to_onedash(filtered_lines)
+            st.session_state.tasks = filtered_lines
 
     # OneDash section
     elif page == "OneDash":
