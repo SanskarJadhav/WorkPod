@@ -74,30 +74,30 @@ def extract_tasks_from_response(response):
             tasks = [task.strip() for task in response_content.split('\n') if task.strip()]
     return tasks
 
-# Function to generate Arctic response
-def generate_arctic_response(messages):
+# Function for generating Snowflake Arctic response
+def generate_arctic_response():
     prompt = []
-    for dict_message in messages:
+    for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
-            prompt.append("user\n" + dict_message["content"] + "")
+            prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
         else:
-            prompt.append("assistant\n" + dict_message["content"] + "")
-
-    prompt.append("assistant")
+            prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+    
+    prompt.append("<|im_start|>assistant")
     prompt.append("Cool! ")
     prompt_str = "\n".join(prompt)
-
+    
     if get_num_tokens(prompt_str) >= 3072:
         st.error("Conversation length too long. Please keep it under 3072 tokens.")
         st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
         st.stop()
 
     for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                                   input={"prompt": prompt_str,
-                                          "prompt_template": r"{prompt}",
-                                          "temperature": temperature,
-                                          "top_p": 0.9,
-                                          }):
+                           input={"prompt": prompt_str,
+                                  "prompt_template": r"{prompt}",
+                                  "temperature": temperature,
+                                  "top_p": 0.9,
+                                  }):
         yield str(event)
 
 
@@ -242,14 +242,10 @@ def main():
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response(st.session_state.messages)
-                if response:
-                    tasks = extract_tasks_from_response(st.session_state.messages)
-                    if tasks:
-                        st.write("Tasks generated:")
-                        for task in tasks:
-                            st.write(f"- {task}")
-                        st.button("Push to OneDash", on_click=push_to_onedash(tasks), label="Push Tasks to OneDash")
+                response = generate_arctic_response()
+                full_response = st.write_stream(response)
+            message = {"role": "assistant", "content": full_response}
+            st.session_state.messages.append(message)
                             
     # OneDash section
     elif page == "OneDash":
