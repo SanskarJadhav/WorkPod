@@ -240,10 +240,14 @@ def main():
                 response = generate_arctic_response()
                 full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
-            pattern = r'^\d+\..*|^[*].*|^-.*'
             filtered_lines = []
+            # Flag to indicate when to start saving lines
+            save_lines = False
             for line in str(full_response).splitlines():
-                if re.match(pattern, line):
+                # Check if the line starts with "1."
+                if line.strip().startswith("1."):
+                    save_lines = True
+                if save_lines:
                     filtered_lines.append(line)
             tasks = filtered_lines
             st.session_state.messages.append(message)
