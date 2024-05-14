@@ -241,8 +241,7 @@ def main():
                                 input={"prompt": prompt_str,
                                   "prompt_template": r"{prompt}",
                                   "temperature": temperature,
-                                  "top_p": 0.9,
-                                  "max_length": 3000
+                                  "top_p": 0.9
                                 }):
                 yield str(event)
 
