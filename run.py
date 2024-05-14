@@ -343,7 +343,7 @@ def main():
                     for task in tasks:
                         task_id, _, task_description, completed, completed_by = task
                         if task_description[0].isdigit():
-                            st.write(f":lightblue[{task_description}]")
+                            st.write(f":blue[{task_description}]")
                         else:
                             st.write(f"- {task_description}")
                         # Checkbox for marking task as completed
