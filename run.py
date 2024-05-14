@@ -77,14 +77,14 @@ def get_tasks_by_project_id(project_id):
     conn.close()
     return tasks
 
-# Function to retrieve completed and remaining tasks
-def get_completed_and_remaining_tasks(project_id):
+# Function to retrieve completed and total tasks
+def get_completed_and_total_tasks(project_id):
     conn = sqlite3.connect('user_data.db')
     c = conn.cursor()
-    c.execute('''SELECT COUNT(*), SUM(completed) FROM tasks WHERE project_id = ?''', (project_id,))
-    completed, remaining = c.fetchone()
+    c.execute('''SELECT SUM(completed), COUNT(*) FROM tasks WHERE project_id = ?''', (project_id,))
+    completed, total = c.fetchone()
     conn.close()
-    return completed, remaining
+    return completed, total
 
 # Function to retrieve user contributions
 def get_user_contributions(project_id):
@@ -355,12 +355,12 @@ def main():
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
 
-            # Display completed vs. remaining tasks chart
-            completed, remaining = get_completed_and_remaining_tasks(project_id)
-            tasks_data = {"Status": ["Completed", "Remaining"], "Count": [completed, remaining]}
-            tasks_df = pd.DataFrame(tasks_data)
-            st.subheader("Completed vs. Remaining Tasks")
-            st.bar_chart(tasks_df, x="Status", y="Count")
+            # Display progress bar chart for completed tasks percentage out of total tasks
+            completed, total = get_completed_and_total_tasks(project_id)
+            completed_percentage = (completed / total) * 100
+            st.subheader("Completed Tasks")
+            st.write(f"Completed: {completed} / Total: {total}")
+            st.progress(completed_percentage)
     
             # Display user contributions pie chart
             user_contributions = get_user_contributions(project_id)
