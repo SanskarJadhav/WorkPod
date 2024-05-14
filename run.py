@@ -287,11 +287,19 @@ def main():
             if "tasks" in st.session_state:
                 if st.session_state.tasks:
                     st.subheader("Tasks from Arctic as To-Dos:")
-                    for task in st.session_state.tasks:
-                        if task[0].isdigit():  # Check if the first character is a digit
-                            st.write(f"{task}")
+                    for i, task in enumerate(st.session_state.tasks):
+                        if task[0].isdigit():
+                            st.write(f"{i+1}. {task}")
                         else:
-                            st.write(f"- To-Do: {task}")
+                            st.write(f"- {task}")
+                        
+                        # Checkbox for marking task as completed
+                        completed = st.checkbox(f"Completed", key=f"completed_{i}")
+                        
+                        # Button to delete task
+                        if st.button("Delete", key=f"delete_{i}"):
+                            st.session_state.tasks.pop(i)
+                            st.success("Task deleted!")
                 else:
                     st.info("No tasks available.")
             else:
