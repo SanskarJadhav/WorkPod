@@ -161,7 +161,6 @@ def main():
                 st.error("Please fill in all the fields.")
     
 
-    # Arctic section
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
         username = st.session_state.get("username")
@@ -189,7 +188,7 @@ def main():
     
         def clear_chat_history():
             st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
-        
+            
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
     
         @st.cache_resource(show_spinner=False)
@@ -210,11 +209,11 @@ def main():
                     prompt.append("user\n" + dict_message["content"] + "")
                 else:
                     prompt.append("assistant\n" + dict_message["content"] + "")
-        
+    
             prompt.append("assistant")
             prompt.append("Cool! ")
             prompt_str = "\n".join(prompt)
-            
+                
             if get_num_tokens(prompt_str) >= 3072:
                 st.error("Conversation length too long. Please keep it under 3072 tokens.")
                 st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
@@ -227,12 +226,15 @@ def main():
                                           "temperature": temperature,
                                           "top_p": 0.9,
                                           }):
-                yield task  # Yield the task as a string
-                tasks.append(task)  # Append the task to the list
+                # Check if the event starts with a task indicator
+                if event.startswith("- "):
+                    task = event.strip()  # Remove leading/trailing whitespace
+                    tasks.append(task)  # Add the task to the list
+                yield event  # Yield the event as a string
             
             # Finally, yield the full response as a string
             yield "\n".join(tasks)
-    
+
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
@@ -242,7 +244,7 @@ def main():
         # Initialize an empty list to store tasks
         tasks = []
         
-        # Generate a new response if last message is not from assistant
+        # Generate a new response if the last message is not from the assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
                 # Generate Arctic response
@@ -254,7 +256,7 @@ def main():
                         # Write the full response to the app
                         full_response = response
                         st.write_stream(full_response)
-        
+                        
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
