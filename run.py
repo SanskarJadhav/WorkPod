@@ -207,11 +207,11 @@ def main():
             prompt = []
             for dict_message in st.session_state.messages:
                 if dict_message["role"] == "user":
-                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+                    prompt.append("user\n" + dict_message["content"] + "")
                 else:
-                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
-            
-            prompt.append("<|im_start|>assistant")
+                    prompt.append("assistant\n" + dict_message["content"] + "")
+        
+            prompt.append("assistant")
             prompt.append("Cool! ")
             prompt_str = "\n".join(prompt)
             
@@ -219,29 +219,43 @@ def main():
                 st.error("Conversation length too long. Please keep it under 3072 tokens.")
                 st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
                 st.stop()
-        
+            
+            tasks = []  # Initialize an empty list to store tasks
             for event in replicate.stream("snowflake/snowflake-arctic-instruct",
                                    input={"prompt": prompt_str,
                                           "prompt_template": r"{prompt}",
                                           "temperature": temperature,
                                           "top_p": 0.9,
                                           }):
-                yield str(event)
+                task = event.strip()  # Remove leading/trailing whitespace
+                yield task  # Yield the task as a string
+                tasks.append(task)  # Append the task to the list
+            
+            # Finally, yield the full response as a string
+            yield "\n".join(tasks)
     
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
-    
+        
+        # Initialize an empty list to store tasks
+        tasks = []
+        
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response()
-                full_response = st.write_stream(response)
-            message = {"role": "assistant", "content": full_response}
-            st.session_state.messages.append(message)
-                            
+                # Generate Arctic response
+                for response in generate_arctic_response():
+                    # Check if the response is a task or the full response
+                    if response.startswith("- "):  # Check if it starts with a task indicator
+                        tasks.append(response)  # Add the task to the list
+                    else:
+                        # Write the full response to the app
+                        full_response = response
+                        st.write_stream(full_response)
+        
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
