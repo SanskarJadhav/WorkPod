@@ -250,14 +250,12 @@ def main():
                 if save_lines:
                     cleaned_line = line.strip().lstrip("* ")
                     filtered_lines.append(cleaned_line)
-            tasks = filtered_lines
+            alltasks = filtered_lines
             st.session_state.messages.append(message)
-            def push_to_onedash():
-                # Save tasks list to session state
-                st.session_state.tasks = tasks
-                st.success("Tasks list pushed to OneDash!")
             if st.button("Push to OneDash"):
-                push_to_onedash()
+                if 'tasks' not in st.session_state:
+                    st.session_state.tasks = alltasks
+                    st.success("Tasks list pushed to OneDash!")
 
     # OneDash section
     elif page == "OneDash":
