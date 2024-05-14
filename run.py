@@ -164,7 +164,10 @@ def main():
 
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
-        username = st.session_state.get("username")
+        if "username" in st.session_state:
+            username = st.session_state.get("username")
+        else:
+            username = "Anonymous"
         with st.sidebar:
             if 'REPLICATE_API_TOKEN' in st.secrets:
                 replicate_api = st.secrets['REPLICATE_API_TOKEN']
@@ -257,10 +260,15 @@ def main():
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
         st.header("",divider="rainbow")
-    
-        # Display user's project ID
-        project_id = st.session_state.get("project_id")
-        username = st.session_state.get("username")
+
+        if "project_id" in st.session_state:
+            project_id = st.session_state.get("project_id")
+        else:
+            project_id = ""
+        if "username" in st.session_state:
+            username = st.session_state.get("username")
+        else:
+            username = ""
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
     
