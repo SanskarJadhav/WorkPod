@@ -253,7 +253,7 @@ def main():
             tasks = filtered_lines
             st.session_state.messages.append(message)
             st.write("")
-            st.write(x for x in tasks)
+            st.write(tasks[:3])
                             
     # OneDash section
     elif page == "OneDash":
