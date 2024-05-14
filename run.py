@@ -357,7 +357,7 @@ def main():
 
             # Display progress bar chart for completed tasks percentage out of total tasks
             completed, total = get_completed_and_total_tasks(project_id)
-            completed_percentage = (completed / total) * 100
+            completed_percentage = int((completed / total) * 100)
             st.subheader("Completed Tasks")
             st.write(f"Completed: {completed} / {total}")
             st.progress(completed_percentage, "Progress")
