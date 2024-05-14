@@ -379,7 +379,9 @@ def main():
             # Display user contributions pie chart
             user_contributions = get_user_contributions(project_id)
             user_contributions_df = pd.DataFrame(user_contributions, columns=["User", "Completed Tasks"])
-            st.plotly_chart(px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions"))
+            fig = px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions")
+            fig.update_traces(textposition='inside', textinfo='percent+label', textfont_color='white')
+            st.plotly_chart(fig)
         
             tasks = get_tasks_by_project_id(project_id)
             if tasks:
