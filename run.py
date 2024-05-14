@@ -64,6 +64,14 @@ def get_users_by_project_id(project_id):
     conn.close()
     return data
 
+def generate_arctic_response(prompt):
+    tasks = []
+    for dict_message in prompt:
+        if dict_message["role"] == "assistant":
+            # Assume the response format is "1. Task 1\n2. Task 2\n3. Task 3\n..."
+            tasks = [task.strip() for task in dict_message["content"].split('\n') if task.strip()]
+    return tasks
+
 # Main Streamlit app
 def main():
     # Create SQLite database if it doesn't exist
@@ -75,7 +83,7 @@ def main():
 
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpodtitle.png", use_column_width=True)
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/dolphinwordcloud.png", use_column_width=True)
-        page = st.radio("", ["Registration", "Login", "OneDash", "Arctic"])
+        page = st.radio("", ["Registration", "Login", "Arctic", "OneDash"])
 
 
     if page == "Registration":
@@ -149,36 +157,8 @@ def main():
                     st.error("Invalid project ID or username.")
             else:
                 st.error("Please fill in all the fields.")
-
-    elif page == "OneDash":
-        st.title("OneDash - Project Dashboard")
-        st.header("",divider="rainbow")
-
-        # Display user's project ID
-        project_id = st.session_state.get("project_id")
-        username = st.session_state.get("username")
-        if project_id:
-            st.write(f"You are currently working on Project ID: {project_id}")
-
-            # Exit project button
-            if st.button("Exit Project", key="exit_button"):
-                if username:
-                    delete_user_record(project_id, username)
-                    st.success(f"You have exited Project ID '{project_id}'. Your record has been removed.")
-                else:
-                    st.write("No username. Please log in first.")
-
-            # Display users with the same project ID
-            st.sidebar.header(":grey-background[Project Members]")
-            project_users = get_users_by_project_id(project_id)
-            for user in project_users:
-                st.sidebar.markdown(f"Username: {user[1]}")
-                st.sidebar.markdown(f"Email: {user[2]}")
-                if user[4] is not None:
-                    # Display uploaded image
-                    image = Image.open(io.BytesIO(user[4]))
-                    st.sidebar.image(image, use_column_width=True, caption=user[1])
-
+    
+    # Arctic section
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
         username = st.session_state.get("username")
@@ -187,9 +167,9 @@ def main():
                 replicate_api = st.secrets['REPLICATE_API_TOKEN']
             else:
                 replicate_api = st.text_input('Enter Replicate API token:', type='password')
-            if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
-                st.warning('Please enter your Replicate API token.', icon='⚠️')
-                st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+                if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                    st.warning('Please enter your Replicate API token.', icon='⚠️')
+                    st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
 
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Model Creativity Control")
@@ -198,7 +178,7 @@ def main():
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
             st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
-
+    
         # Display or clear chat messages
         for message in st.session_state.messages:
             with st.chat_message(message["role"], avatar=icons[message["role"]]):
@@ -208,7 +188,7 @@ def main():
             st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
         
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
-
+    
         @st.cache_resource(show_spinner=False)
         def get_tokenizer():
             return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
@@ -219,46 +199,61 @@ def main():
             tokens = tokenizer.tokenize(prompt)
             return len(tokens)
     
-        # Function for generating Snowflake Arctic response
-        def generate_arctic_response():
-            prompt = []
-            for dict_message in st.session_state.messages:
-                if dict_message["role"] == "user":
-                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
-                else:
-                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
-            
-            prompt.append("<|im_start|>assistant")
-            prompt.append("Cool! ")
-            prompt_str = "\n".join(prompt)
-            
-            if get_num_tokens(prompt_str) >= 3072:
-                st.error("Conversation length too long. Please keep it under 3072 tokens.")
-                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
-                st.stop()
-        
-            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                                input={"prompt": prompt_str,
-                                  "prompt_template": r"{prompt}",
-                                  "temperature": temperature,
-                                  "top_p": 0.9
-                                }):
-                yield str(event)
-
+        # Function to push tasks to OneDash
+        def push_to_onedash(tasks):
+            st.session_state.onedash_tasks = tasks
+    
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
-
+    
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response()
-                full_response = st.write_stream(response)
-            message = {"role": "assistant", "content": full_response}
-            st.session_state.messages.append(message)
+                response = generate_arctic_response(st.session_state.messages)
+                if response:
+                    st.write("Tasks generated:")
+                    for task in response:
+                        st.write(f"- {task}")
+                    st.button("Push to OneDash", on_click=push_to_onedash(response))
 
+    # OneDash section
+    elif page == "OneDash":
+        st.title("OneDash - Project Dashboard")
+        st.header("",divider="rainbow")
+    
+        # Display user's project ID
+        project_id = st.session_state.get("project_id")
+        username = st.session_state.get("username")
+        if project_id:
+            st.write(f"You are currently working on Project ID: {project_id}")
+    
+            # Exit project button
+            if st.button("Exit Project", key="exit_button"):
+                if username:
+                    delete_user_record(project_id, username)
+                    st.success(f"You have exited Project ID '{project_id}'. Your record has been removed.")
+                else:
+                    st.write("No username. Please log in first.")
+    
+            # Display users with the same project ID
+            st.sidebar.header(":grey-background[Project Members]")
+            project_users = get_users_by_project_id(project_id)
+            for user in project_users:
+                st.sidebar.markdown(f"Username: {user[1]}")
+                st.sidebar.markdown(f"Email: {user[2]}")
+                if user[4] is not None:
+                    # Display uploaded image
+                    image = Image.open(io.BytesIO(user[4]))
+                    st.sidebar.image(image, use_column_width=True, caption=user[1])
+    
+            # Display tasks from Arctic as to-dos
+            if hasattr(st.session_state, 'onedash_tasks') and st.session_state.onedash_tasks:
+                st.subheader("Tasks from Arctic as To-Dos:")
+                for i, task in enumerate(st.session_state.onedash_tasks):
+                    st.write(f"- To-Do {i+1}: {task}")
 
 if __name__ == "__main__":
     main()
