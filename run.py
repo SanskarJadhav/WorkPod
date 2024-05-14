@@ -233,7 +233,8 @@ def main():
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
-        
+
+        st.session_state.tasks = []
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
@@ -253,9 +254,9 @@ def main():
             tasks = filtered_lines
             st.session_state.messages.append(message)
             if st.button("Push to OneDash"):
-                if 'tasks' not in st.session_state:
-                    st.session_state.tasks = tasks
-                    st.success("Tasks list pushed to OneDash!")
+                for i in filtered_lines:
+                    st.session_state.tasks.append(i)
+                st.success("Tasks list pushed to OneDash!")
 
     # OneDash section
     elif page == "OneDash":
@@ -289,9 +290,9 @@ def main():
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
     
             # Display tasks from Arctic as to-dos
-            if tasks:
+            if st.session_state.tasks:
                 st.subheader("Tasks from Arctic as To-Dos:")
-                for task in tasks:
+                for task in st.session_state.tasks:
                     st.write(f"- To-Do: {task}")
     
 
