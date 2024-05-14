@@ -64,16 +64,16 @@ def get_users_by_project_id(project_id):
     conn.close()
     return data
 
-def generate_arctic_response(prompt):
+# Function to extract tasks from Arctic response
+def extract_tasks_from_response(response):
     tasks = []
-    for dict_message in prompt:
-        if dict_message["role"] == "assistant":
-            # Split the response into lines and extract tasks
-            response_lines = dict_message["content"].split('\n')
-            for line in response_lines:
-                if line.strip().startswith('-'):
-                    tasks.append(line.strip()[2:])  # Remove bullet point and whitespace
+    for message in response:
+        if message["role"] == "assistant":
+            # Extract the list of tasks from the assistant's message
+            response_content = message["content"]
+            tasks = [task.strip() for task in response_content.split('\n') if task.strip()]
     return tasks
+
 
 # Main Streamlit app
 def main():
@@ -161,7 +161,6 @@ def main():
             else:
                 st.error("Please fill in all the fields.")
     
-    # Function for generating Snowflake Arctic response
 
     # Arctic section
     elif page == "Arctic":
@@ -175,7 +174,7 @@ def main():
                 if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
                     st.warning('Please enter your Replicate API token.', icon='⚠️')
                     st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
-
+    
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Model Creativity Control")
             temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.6, step=0.1)
@@ -207,23 +206,51 @@ def main():
         # Function to push tasks to OneDash
         def push_to_onedash(tasks):
             st.session_state.onedash_tasks = tasks
-    
-        # User-provided prompt
-        if prompt := st.chat_input(disabled=not replicate_api):
-            st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
-            with st.chat_message("user", avatar="🐬"):
-                st.write(prompt)
-    
-        # Generate a new response if last message is not from assistant
-        if st.session_state.messages[-1]["role"] != "assistant":
-            with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response(st.session_state.messages)
-                if response:
-                    st.write("Tasks generated:")
-                    for task in response:
-                        st.write(f"- {task}")
-                    st.button("Push to OneDash", on_click=push_to_onedash(response))
-    
+
+        def generate_arctic_response():
+            prompt = []
+            for dict_message in st.session_state.messages:
+                if dict_message["role"] == "user":
+                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+                else:
+                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+        
+            prompt.append("<|im_start|>assistant")
+            prompt.append("Cool! ")
+            prompt_str = "\n".join(prompt)
+            
+            if get_num_tokens(prompt_str) >= 3072:
+                st.error("Conversation length too long. Please keep it under 3072 tokens.")
+                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+                st.stop()
+
+            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                   input={"prompt": prompt_str,
+                                          "prompt_template": r"{prompt}",
+                                          "temperature": temperature,
+                                          "top_p": 0.9,
+                                          }):
+                yield str(event)
+        
+        
+                # User-provided prompt
+            if prompt := st.chat_input(disabled=not replicate_api):
+                st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
+                with st.chat_message("user", avatar="🐬"):
+                    st.write(prompt)
+        
+            # Generate a new response if last message is not from assistant
+            if st.session_state.messages[-1]["role"] != "assistant":
+                with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
+                    response = generate_arctic_response(st.session_state.messages)
+                    if response:
+                        tasks = extract_tasks_from_response(st.session_state.messages)
+                        if tasks:
+                            st.write("Tasks generated:")
+                            for task in tasks:
+                                st.write(f"- {task}")
+                            st.button("Push to OneDash", on_click=push_to_onedash(tasks))
+        
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
