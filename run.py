@@ -81,7 +81,7 @@ def main():
     create_database()
     # Set page title and navigation
     st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png")
-    st.session_state.project_id = -1
+    st.session_state.project_id = ""
     st.session_state.username = "Anonymous"
     st.session_state.tasks = []
     # Page navigation
