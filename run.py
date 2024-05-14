@@ -288,7 +288,10 @@ def main():
                 if st.session_state.tasks:
                     st.subheader("Tasks from Arctic as To-Dos:")
                     for task in st.session_state.tasks:
-                        st.write(f"- To-Do: {task}")
+                        if task[0].isdigit():  # Check if the first character is a digit
+                            st.write(f"{task}")
+                        else:
+                            st.write(f"- To-Do: {task}")
                 else:
                     st.info("No tasks available.")
             else:
