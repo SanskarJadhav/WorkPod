@@ -108,8 +108,6 @@ def main():
         project_id = st.text_input("Enter Project ID:")
         username = st.text_input("Enter your username:")
         email = st.text_input("Enter your email:")
-
-        # Image upload
         uploaded_image = st.file_uploader("Upload Profile Image", type=['jpg', 'jpeg', 'png'])
 
         # Save user data to database upon form submission
@@ -118,7 +116,6 @@ def main():
                 existing_user = get_user_by_project_id_and_username(project_id, username)
                 if existing_user is None:
                     if uploaded_image is not None:
-                        # Convert uploaded image to bytes
                         image_bytes = uploaded_image.read()
                         insert_user_data(username, email, project_id, image_bytes)
                         st.success("You have successfully registered! Please head to Login.")
@@ -164,10 +161,7 @@ def main():
 
     elif page == "Arctic":
         st.title("Arctic LLM Chatbot")
-        if "username" in st.session_state:
-            username = st.session_state.get("username")
-        else:
-            username = "Anonymous"
+        username = st.session_state.get("username")
         with st.sidebar:
             if 'REPLICATE_API_TOKEN' in st.secrets:
                 replicate_api = st.secrets['REPLICATE_API_TOKEN']
@@ -183,7 +177,10 @@ def main():
     
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
-            st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            if username:
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            else:
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
     
         # Display or clear chat messages
         for message in st.session_state.messages:
@@ -191,7 +188,10 @@ def main():
                 st.write(message["content"])
     
         def clear_chat_history():
-            st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            if username:
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+            else:
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
             
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
     
@@ -260,15 +260,8 @@ def main():
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
         st.header("",divider="rainbow")
-
-        if "project_id" in st.session_state:
-            project_id = st.session_state.get("project_id")
-        else:
-            project_id = ""
-        if "username" in st.session_state:
-            username = st.session_state.get("username")
-        else:
-            username = ""
+        project_id = st.session_state.get("project_id")
+        username = st.session_state.get("username")
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
     
@@ -300,6 +293,8 @@ def main():
                     st.info("No tasks available.")
             else:
                 st.info("Tasks not initialized.")
+        else:
+            st.info("Please log in first")
     
 
 if __name__ == "__main__":
