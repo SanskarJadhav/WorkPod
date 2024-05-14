@@ -231,26 +231,27 @@ def main():
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
+
         
         
-                # User-provided prompt
-            if prompt := st.chat_input(disabled=not replicate_api):
-                st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
-                with st.chat_message("user", avatar="🐬"):
-                    st.write(prompt)
+        # User-provided prompt
+        if prompt := st.chat_input(disabled=not replicate_api):
+            st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
+            with st.chat_message("user", avatar="🐬"):
+                st.write(prompt)
         
-            # Generate a new response if last message is not from assistant
-            if st.session_state.messages[-1]["role"] != "assistant":
-                with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                    response = generate_arctic_response(st.session_state.messages)
-                    if response:
-                        tasks = extract_tasks_from_response(st.session_state.messages)
-                        if tasks:
-                            st.write("Tasks generated:")
-                            for task in tasks:
-                                st.write(f"- {task}")
-                            st.button("Push to OneDash", on_click=push_to_onedash(tasks))
-        
+        # Generate a new response if last message is not from assistant
+        if st.session_state.messages[-1]["role"] != "assistant":
+            with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
+                response = generate_arctic_response(st.session_state.messages)
+                if response:
+                    tasks = extract_tasks_from_response(st.session_state.messages)
+                    if tasks:
+                        st.write("Tasks generated:")
+                        for task in tasks:
+                            st.write(f"- {task}")
+                        st.button("Push to OneDash", on_click=push_to_onedash(tasks))
+                        
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
