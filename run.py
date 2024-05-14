@@ -301,16 +301,13 @@ def main():
                     filtered_lines.append(cleaned_line)
             st.session_state.messages.append(message)
             st.session_state.tasks = filtered_lines
-            
-            # Button to save tasks to database
-            if st.button("Push to OneDash"):
-                project_id = st.session_state.get("project_id")
-                if project_id:
-                    for task_description in filtered_lines:
-                        insert_task(project_id, task_description)
-                    st.success("Tasks pushed to OneDash!")
-                else:
-                    st.error("Project ID not found. Please log in first.")
+            project_id = st.session_state.get("project_id")
+            if project_id:
+                for task_description in filtered_lines:
+                    insert_task(project_id, task_description)
+                st.success("Tasks pushed to OneDash!")
+            else:
+                st.error("Project ID not found. Please log in first.")
 
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
