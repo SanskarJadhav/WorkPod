@@ -74,6 +74,32 @@ def extract_tasks_from_response(response):
             tasks = [task.strip() for task in response_content.split('\n') if task.strip()]
     return tasks
 
+# Function to generate Arctic response
+def generate_arctic_response(messages):
+    prompt = []
+    for dict_message in messages:
+        if dict_message["role"] == "user":
+            prompt.append("user\n" + dict_message["content"] + "")
+        else:
+            prompt.append("assistant\n" + dict_message["content"] + "")
+
+    prompt.append("assistant")
+    prompt.append("Cool! ")
+    prompt_str = "\n".join(prompt)
+
+    if get_num_tokens(prompt_str) >= 3072:
+        st.error("Conversation length too long. Please keep it under 3072 tokens.")
+        st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+        st.stop()
+
+    for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                   input={"prompt": prompt_str,
+                                          "prompt_template": r"{prompt}",
+                                          "temperature": temperature,
+                                          "top_p": 0.9,
+                                          }):
+        yield str(event)
+
 
 # Main Streamlit app
 def main():
