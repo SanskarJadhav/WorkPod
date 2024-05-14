@@ -288,6 +288,8 @@ def main():
                 st.subheader("Tasks from Arctic as To-Dos:")
                 for task in st.session_state.tasks:
                     st.write(f"- To-Do: {task}")
+            else:
+                st.write("No tasks for now")
     
 
 if __name__ == "__main__":
