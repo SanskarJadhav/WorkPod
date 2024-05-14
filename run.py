@@ -239,7 +239,12 @@ def main():
                 response = generate_arctic_response()
                 full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
-            tasks = list(str(full_response).splitlines())
+            pattern = r'^\d+\..*|^[*].*'
+            filtered_lines = []
+            for line in str(full_response).splitlines():
+                if re.match(pattern, line):
+                    filtered_lines.append(line)
+            tasks = filtered_lines
             st.session_state.messages.append(message)
             st.write("")
             st.write(x for x in tasks)
