@@ -250,11 +250,11 @@ def main():
                 if save_lines:
                     cleaned_line = line.strip().lstrip("* ")
                     filtered_lines.append(cleaned_line)
-            alltasks = filtered_lines
+            tasks = filtered_lines
             st.session_state.messages.append(message)
             if st.button("Push to OneDash"):
                 if 'tasks' not in st.session_state:
-                    st.session_state.tasks = alltasks
+                    st.session_state.tasks = tasks
                     st.success("Tasks list pushed to OneDash!")
 
     # OneDash section
@@ -265,6 +265,7 @@ def main():
         # Display user's project ID
         project_id = st.session_state.get("project_id")
         username = st.session_state.get("username")
+        tasks = st.session_state.get("tasks")
         if project_id:
             st.write(f"You are currently working on Project ID: {project_id}")
     
@@ -288,9 +289,9 @@ def main():
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
     
             # Display tasks from Arctic as to-dos
-            if st.session_state.tasks:
+            if tasks:
                 st.subheader("Tasks from Arctic as To-Dos:")
-                for task in st.session_state.tasks:
+                for task in tasks:
                     st.write(f"- To-Do: {task}")
     
 
