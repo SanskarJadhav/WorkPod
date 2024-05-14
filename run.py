@@ -81,9 +81,6 @@ def main():
     create_database()
     # Set page title and navigation
     st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png")
-    st.session_state.project_id = ""
-    st.session_state.username = "Anonymous"
-    st.session_state.tasks = []
     # Page navigation
     with st.sidebar:
 
@@ -286,13 +283,15 @@ def main():
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
     
-            # Display tasks from Arctic as to-dos
-            if st.session_state.tasks:
-                st.subheader("Tasks from Arctic as To-Dos:")
-                for task in st.session_state.tasks:
-                    st.write(f"- To-Do: {task}")
+            if "tasks" in st.session_state:
+                if st.session_state.tasks:
+                    st.subheader("Tasks from Arctic as To-Dos:")
+                    for task in st.session_state.tasks:
+                        st.write(f"- To-Do: {task}")
+                else:
+                    st.info("No tasks available.")
             else:
-                st.write("No tasks for now")
+                st.info("Tasks not initialized.")
     
 
 if __name__ == "__main__":
