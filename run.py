@@ -74,33 +74,6 @@ def extract_tasks_from_response(response):
             tasks = [task.strip() for task in response_content.split('\n') if task.strip()]
     return tasks
 
-# Function for generating Snowflake Arctic response
-def generate_arctic_response():
-    prompt = []
-    for dict_message in st.session_state.messages:
-        if dict_message["role"] == "user":
-            prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
-        else:
-            prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
-    
-    prompt.append("<|im_start|>assistant")
-    prompt.append("Cool! ")
-    prompt_str = "\n".join(prompt)
-    
-    if get_num_tokens(prompt_str) >= 3072:
-        st.error("Conversation length too long. Please keep it under 3072 tokens.")
-        st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
-        st.stop()
-
-    for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                           input={"prompt": prompt_str,
-                                  "prompt_template": r"{prompt}",
-                                  "temperature": temperature,
-                                  "top_p": 0.9,
-                                  }):
-        yield str(event)
-
-
 # Main Streamlit app
 def main():
     # Create SQLite database if it doesn't exist
@@ -229,9 +202,31 @@ def main():
             tokens = tokenizer.tokenize(prompt)
             return len(tokens)
         
-        # Function to push tasks to OneDash
-        def push_to_onedash(tasks):
-            st.session_state.onedash_tasks = tasks
+        # Function for generating Snowflake Arctic response
+        def generate_arctic_response():
+            prompt = []
+            for dict_message in st.session_state.messages:
+                if dict_message["role"] == "user":
+                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+                else:
+                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+            
+            prompt.append("<|im_start|>assistant")
+            prompt.append("Cool! ")
+            prompt_str = "\n".join(prompt)
+            
+            if get_num_tokens(prompt_str) >= 3072:
+                st.error("Conversation length too long. Please keep it under 3072 tokens.")
+                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+                st.stop()
+        
+            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                   input={"prompt": prompt_str,
+                                          "prompt_template": r"{prompt}",
+                                          "temperature": temperature,
+                                          "top_p": 0.9,
+                                          }):
+                yield str(event)
     
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
