@@ -359,8 +359,8 @@ def main():
             completed, total = get_completed_and_total_tasks(project_id)
             completed_percentage = (completed / total) * 100
             st.subheader("Completed Tasks")
-            st.write(f"Completed: {completed} / Total: {total}")
-            st.progress(completed_percentage)
+            st.write(f"Completed: {completed} / {total}")
+            st.progress(completed_percentage, Progress)
     
             # Display user contributions pie chart
             user_contributions = get_user_contributions(project_id)
