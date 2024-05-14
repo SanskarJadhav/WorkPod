@@ -226,11 +226,12 @@ def main():
                                           "temperature": temperature,
                                           "top_p": 0.9,
                                           }):
+                event_str = str(event)  # Convert the event to a string
                 # Check if the event starts with a task indicator
-                if event.startswith("- "):
-                    task = event.strip()  # Remove leading/trailing whitespace
+                if event_str.startswith("- "):
+                    task = event_str.strip()  # Remove leading/trailing whitespace
                     tasks.append(task)  # Add the task to the list
-                yield event  # Yield the event as a string
+                yield event_str
             
             # Finally, yield the full response as a string
             yield "\n".join(tasks)
