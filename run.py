@@ -5,9 +5,9 @@ from PIL import Image
 import io
 import replicate
 import os
-import re
 from transformers import AutoTokenizer
 import plotly.express as px
+import pandas as pd
 
 # Set assistant icon to Snowflake logo
 icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "🐬"}
