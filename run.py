@@ -289,7 +289,7 @@ def main():
                     st.subheader("Tasks from Arctic as To-Dos:")
                     for i, task in enumerate(st.session_state.tasks):
                         if task[0].isdigit():
-                            st.write(f"{i+1}. {task}")
+                            st.write(f"{task}")
                         else:
                             st.write(f"- {task}")
                         
