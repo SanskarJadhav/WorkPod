@@ -343,7 +343,7 @@ def main():
                     for task in tasks:
                         task_id, _, task_description, completed, completed_by = task
                         if task_description[0].isdigit():
-                            st.write(f"{task_description}")
+                            st.write(f":cyan[{task_description}]")
                         else:
                             st.write(f"- {task_description}")
                         # Checkbox for marking task as completed
@@ -352,7 +352,7 @@ def main():
                             if completed:
                                 mark_task_as_completed(task_id, username)
                         else:
-                            st.write(f"Task completed by: {completed_by}")
+                            st.markdown(f":green[Task completed by:] {completed_by}")
                         # Button to delete task
                         if st.button("Delete", key=f"delete_{task_id}"):
                             delete_task(task_id)
