@@ -202,43 +202,17 @@ def main():
             tokenizer = get_tokenizer()
             tokens = tokenizer.tokenize(prompt)
             return len(tokens)
-    
+        
         # Function to push tasks to OneDash
         def push_to_onedash(tasks):
             st.session_state.onedash_tasks = tasks
-
-        def generate_arctic_response(messages):
-            prompt = []
-            for dict_message in messages:
-                if dict_message["role"] == "user":
-                    prompt.append("user\n" + dict_message["content"] + "")
-                else:
-                    prompt.append("assistant\n" + dict_message["content"] + "")
     
-            prompt.append("assistant")
-            prompt.append("Cool! ")
-            prompt_str = "\n".join(prompt)
-        
-            if get_num_tokens(prompt_str) >= 3072:
-                st.error("Conversation length too long. Please keep it under 3072 tokens.")
-                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
-                st.stop()
-        
-            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                                           input={"prompt": prompt_str,
-                                                  "prompt_template": r"{prompt}",
-                                                  "temperature": temperature,
-                                                  "top_p": 0.9,
-                                                  }):
-                yield str(event)
-
-        
         # User-provided prompt
         if prompt := st.chat_input(disabled=not replicate_api):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps. Just highlight what each step will be and expected time for completion of each."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
-        
+    
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
             with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
@@ -249,8 +223,8 @@ def main():
                         st.write("Tasks generated:")
                         for task in tasks:
                             st.write(f"- {task}")
-                        st.button("Push to OneDash", on_click=push_to_onedash(tasks))
-                        
+                        st.button("Push to OneDash", on_click=push_to_onedash(tasks), label="Push Tasks to OneDash")
+                            
     # OneDash section
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard")
