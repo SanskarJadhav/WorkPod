@@ -292,14 +292,13 @@ def main():
                             st.write(f"{task}")
                         else:
                             st.write(f"- {task}")
-                        
-                        # Checkbox for marking task as completed
-                        completed = st.checkbox(f"Completed", key=f"completed_{i}")
-                        
-                        # Button to delete task
-                        if st.button("Delete", key=f"delete_{i}"):
-                            st.session_state.tasks.pop(i)
-                            st.success("Task deleted!")
+                            # Checkbox for marking task as completed
+                            completed = st.checkbox(f"Completed", key=f"completed_{i}")
+                            
+                            # Button to delete task
+                            if st.button("Delete", key=f"delete_{i}"):
+                                st.session_state.tasks.pop(i)
+                                st.success("Task deleted!")
                 else:
                     st.info("No tasks available.")
             else:
