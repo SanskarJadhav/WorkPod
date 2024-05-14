@@ -248,7 +248,8 @@ def main():
                 if line.strip().startswith("1."):
                     save_lines = True
                 if save_lines:
-                    filtered_lines.append(line)
+                    cleaned_line = line.lstrip("*").strip() if line.strip().startswith("*") else line.strip()
+                    filtered_lines.append(cleaned_line)
             tasks = filtered_lines
             st.session_state.messages.append(message)
             st.write("")
