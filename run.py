@@ -252,8 +252,16 @@ def main():
                     filtered_lines.append(cleaned_line)
             tasks = filtered_lines
             st.session_state.messages.append(message)
-            st.write("")
-            st.write(tasks[:3])
+            def push_to_onedash():
+                # Save tasks list to session state
+                st.session_state.tasks = tasks
+                st.success("Tasks list pushed to OneDash!")
+            if st.button("Push to OneDash"):
+                push_to_onedash()
+
+# Button to trigger pushing tasks list to memory
+if st.button("Push to OneDash"):
+    push_to_onedash()
                             
     # OneDash section
     elif page == "OneDash":
@@ -286,10 +294,10 @@ def main():
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
     
             # Display tasks from Arctic as to-dos
-            if hasattr(st.session_state, 'onedash_tasks') and st.session_state.onedash_tasks:
+            if st.session_state.tasks:
                 st.subheader("Tasks from Arctic as To-Dos:")
-                for i, task in enumerate(st.session_state.onedash_tasks):
-                    st.write(f"- To-Do {i+1}: {task}")
+                for task in st.session_state.tasks:
+                    st.write(f"- To-Do: {task}")
     
 
 if __name__ == "__main__":
