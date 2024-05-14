@@ -256,7 +256,7 @@ def main():
                     else:
                         # Write the full response to the app
                         full_response = response
-                        st.write_stream(full_response)
+                        st.write(full_response)
                         
     # OneDash section
     elif page == "OneDash":
