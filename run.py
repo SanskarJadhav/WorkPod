@@ -554,7 +554,7 @@ def main():
         
         if red_clicked:
             clear_chat_history()
-            mood = "I am feeling frustrated."
+            mood = "I am feeling very annoyed. It's too hectic."
             reply = "Oh! 😯 Well, music can be a great outlet for such emotions, rather than bottling them up within. I've got some songs for you."
         elif orange_clicked:
             clear_chat_history()
