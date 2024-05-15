@@ -10,6 +10,7 @@ import re
 from transformers import AutoTokenizer
 import plotly.express as px
 import pandas as pd
+import numpy as np
 
 # Set assistant icon to Snowflake logo
 icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "🐬"}
