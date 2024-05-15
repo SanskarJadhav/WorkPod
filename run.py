@@ -524,6 +524,21 @@ def main():
                                           }):
                 yield str(event)
 
+        url = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/musicdata.csv"
+        df = pd.read_csv(url)
+
+        def calculate_distance(row, input_array):
+            song_values = np.array(row[['danceability', 'energy', 'speechiness', 
+                                        'acousticness', 'valence', 'tempo']])
+            return np.linalg.norm(input_array - song_values)
+        
+        def get_recommendations(df, input):
+            df['distance'] = df.apply(calculate_distance, axis=1, input_array = input)
+            df_sorted = df.sort_values(by='distance')
+            df_sorted['song_track_id'] = df_sorted['song_track_id'].apply(make_clickable)
+            top_10_songs = df_sorted[['Song', 'Performer', 'song_track_id']].head(10)
+            return top_10_songs
+        
         mood = ""
         
         if red_clicked:
@@ -557,7 +572,10 @@ def main():
             if match:
                 extracted_array = match.group(1).split(', ')
             st.session_state.musicrequest.append(message)
-            st.write(extracted_array)
+            recdf = get_recommendations(df, extracted_array)
+            recdf.reset_index(drop=True, inplace=True)
+            st.markdown('Recommending songs similar to '+ song_name + " by " + artist_name)
+            rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
             
 if __name__ == "__main__":
     main()
