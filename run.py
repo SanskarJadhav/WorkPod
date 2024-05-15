@@ -369,7 +369,6 @@ def main():
         
             tasks = get_tasks_by_project_id(project_id)
             if tasks:
-                # Display progress bar chart for completed tasks percentage out of total tasks
                 completed, total = get_completed_and_total_tasks(project_id)
                 if completed == total:
                     st.subheader("Congratulations! You've successfully completed your project!")
@@ -380,8 +379,7 @@ def main():
                 st.subheader("Progress Report")
                 st.write(f"Completed Tasks: {completed} / {total}")
                 st.progress(completed_percentage, "Progress of Project Completion")
-        
-                # Display user contributions pie chart
+
                 user_contributions = get_user_contributions(project_id)
                 user_contributions_df = pd.DataFrame(user_contributions, columns=["User", "Completed Tasks"])
                 fig = px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions")
