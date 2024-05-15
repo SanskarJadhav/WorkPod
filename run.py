@@ -415,26 +415,62 @@ def main():
         username = st.session_state.get("username")
         st.write(f"Hello {username}. How are we feeling today?")
         
-        col1, col2 = st.columns(2)
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
-            with stylable_container(key="happy", css_styles="""
+            with stylable_container(key="but1", css_styles="""
                 button {
-                    background-color: green;
+                    background-color: firebrick;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid lime;
+                    border: 2px solid indianred;
                 }"""):
-                happy_clicked = st.button("Happy", key="happy")
+                red_clicked = st.button("Frustrated", key="but1")
         with col2:
-            with stylable_container(key="sad", css_styles="""
+            with stylable_container(key="but2", css_styles="""
                 button {
-                    background-color: red;
+                    background-color: darkorange;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid maroon;
+                    border: 2px solid peru;
                 }"""):
-                sad_clicked = st.button("Sad", key="sad")
-
+                orange_clicked = st.button("Motivated", key="but2")
+        with col3:
+            with stylable_container(key="but3", css_styles="""
+                button {
+                    background-color: gold;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid goldenrod;
+                }"""):
+                yellow_clicked = st.button("Excited", key="but3")
+        with col4:
+            with stylable_container(key="but4", css_styles="""
+                button {
+                    background-color: forestgreen;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid palegreen;
+                }"""):
+                green_clicked = st.button("Satisfied", key="but4")
+        with col5:
+            with stylable_container(key="but5", css_styles="""
+                button {
+                    background-color: darkblue;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid royalblue;
+                }"""):
+                blue_clicked = st.button("Tired", key="but5")
+        with col6:
+            with stylable_container(key="but6", css_styles="""
+                button {
+                    background-color: indigo;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid blueviolet;
+                }"""):
+                purple_clicked = st.button("Gloomy", key="but6")
+        
         if happy_clicked:
             st.write("Button 1 pressed")
         elif sad_clicked:
