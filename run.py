@@ -440,7 +440,7 @@ def main():
                     background-color: goldenrod;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid yellow;
+                    border: 2px solid khaki;
                 }"""):
                 yellow_clicked = st.button("Excited", key="but3")
         with col4:
