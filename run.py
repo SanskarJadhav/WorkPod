@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container
 import sqlite3
 import requests
 from PIL import Image
@@ -160,7 +161,7 @@ def main():
 
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpodtitle.png", use_column_width=True)
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/dolphinwordcloud.png", use_column_width=True)
-        page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "OneSpace"])
+        page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "Oasis"])
 
 
     if page == "Registration":
@@ -408,11 +409,36 @@ def main():
         else:
             st.info("Please log in first")
 
-    elif page == "OneSpace":
-        st.title("OneSpace - Music for your Mood :musical_note:")
+    elif page == "Oasis":
+        st.title("Oasis - Music for your Mood :musical_note:")
         st.header("",divider="rainbow")
         username = st.session_state.get("username")
         st.write(f"Hello {username}. How are we feeling today?")
+        
+        # Create buttons with st.button
+        with stylable_container(
+            "green",
+            css_styles="""
+            button {
+                background-color: #00FF00;
+            }""",
+        ):
+            button1_clicked = st.button("Happy", key="button1")
+        with stylable_container(
+            "red",
+            css_styles="""
+            button {
+                background-color: #FF0000;
+            }""",
+        ):
+            button2_clicked = st.button("Sad", key="button2")
+
+        # Check button states and print messages
+        if st.button("Submit"):
+            if button1_clicked:
+                st.write("Button 1 pressed")
+            elif button2_clicked:
+                st.write("Button 2 pressed")
             
 if __name__ == "__main__":
     main()
