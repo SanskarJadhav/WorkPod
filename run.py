@@ -409,7 +409,7 @@ def main():
             st.info("Please log in first")
 
     elif page == "OneSpace":
-        st.title("OneSpace - Music for your Mood :music:")
+        st.title("OneSpace - Music for your Mood :musical_note:")
         st.header("",divider="rainbow")
         username = st.session_state.get("username")
         st.write(f"Hello {username}. How are we feeling today?")
