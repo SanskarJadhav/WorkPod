@@ -342,7 +342,7 @@ def main():
 
     elif page == "OneDash":
         st.title("OneDash - Project Dashboard :bar_chart:")
-        st.header("",divider="rainbow")
+        st.header("Powered by Snowflake Arctic",divider="rainbow")
         project_id = st.session_state.get("project_id")
         username = st.session_state.get("username")
         if project_id:
@@ -413,7 +413,7 @@ def main():
 
     elif page == "Oasis":
         st.title("Oasis - Music for your Mood :musical_note:")
-        st.header("",divider="rainbow")
+        st.header("Powered by Snowflake Arctic",divider="rainbow")
         username = st.session_state.get("username")
         with st.sidebar:
             if 'REPLICATE_API_TOKEN' in st.secrets:
