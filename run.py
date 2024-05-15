@@ -423,12 +423,7 @@ def main():
                 background-color: green;
                 border-radius: 15px;
                 color: white;
-            }
-            button:hover {
-                border-color: white;
-            }
-            button:active {
-                border-color: white
+                border: 2px solid white;
             }""",
         ):
             happy_clicked = st.button("Happy", key="happy")
