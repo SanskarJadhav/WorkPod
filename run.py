@@ -555,7 +555,7 @@ def main():
         if red_clicked:
             clear_chat_history()
             mood = "I am feeling frustrated."
-            reply = "Oh my, well it's best to let those emotions escape through music rather than bottling it up within. I've got a few songs for you."
+            reply = "Oh my, 😳 well it's best to let those emotions escape through music rather than bottling it up within. Let me find some songs for you."
         elif orange_clicked:
             clear_chat_history()
             mood = "I am feeling motivated to work harder."
