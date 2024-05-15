@@ -576,7 +576,7 @@ def main():
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
             response = generate_arctic_response()
-            full_response = response
+            full_response = st.stream(response)
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
