@@ -553,7 +553,7 @@ def main():
         
         if red_clicked:
             clear_chat_history()
-            mood = "I am feeling frustrated and vexed."
+            mood = "I am feeling frustrated."
         elif orange_clicked:
             clear_chat_history()
             mood = "I am feeling motivated to work harder."
@@ -562,7 +562,7 @@ def main():
             mood = "I am feeling excited!"
         elif green_clicked:
             clear_chat_history()
-            mood = "I am feeling satisfied with my work."
+            mood = "I am feeling satisfied and content."
         elif blue_clicked:
             clear_chat_history()
             mood = "I am feeling tired and worked out."
@@ -576,7 +576,7 @@ def main():
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
             response = generate_arctic_response()
-            full_response = st.write_stream(response)
+            full_response = io.BytesIO(response.read())
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
