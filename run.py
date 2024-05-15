@@ -571,7 +571,7 @@ def main():
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it. Keep your response short."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
@@ -579,7 +579,6 @@ def main():
             full_response = ''
             for i in response:
                 full_response += str(i)
-                st.write(str(i))
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
