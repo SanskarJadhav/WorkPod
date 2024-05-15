@@ -433,12 +433,10 @@ def main():
         ):
             button2_clicked = st.button("Sad", key="button2")
 
-        # Check button states and print messages
-        if st.button("Submit"):
-            if button1_clicked:
-                st.write("Button 1 pressed")
-            elif button2_clicked:
-                st.write("Button 2 pressed")
+        if button1_clicked:
+            st.write("Button 1 pressed")
+        elif button2_clicked:
+            st.write("Button 2 pressed")
             
 if __name__ == "__main__":
     main()
