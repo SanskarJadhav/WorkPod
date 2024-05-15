@@ -573,7 +573,7 @@ def main():
             if match:
                 extracted_array = match.group(1).split(', ')
             st.session_state.musicrequest.append(message)
-            recdf = get_recommendations(df, extracted_array)
+            recdf = get_recommendations(df, np.array(extracted_array))
             recdf.reset_index(drop=True, inplace=True)
             st.markdown('Recommending songs similar to '+ song_name + " by " + artist_name)
             rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
