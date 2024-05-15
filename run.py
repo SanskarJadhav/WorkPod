@@ -574,7 +574,7 @@ def main():
             if match:
                 extracted_array = match.group(1).split(', ')
             st.session_state.musicrequest.append(message)
-            recdf = get_recommendations(df, np.array(extracted_array))
+            recdf = get_recommendations(df, np.array(extracted_array), 10)
             recdf.reset_index(drop=True, inplace=True)
             st.subheader("Recommended Songs")
             rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
