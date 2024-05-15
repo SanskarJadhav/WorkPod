@@ -428,19 +428,19 @@ def main():
         with col2:
             with stylable_container(key="but2", css_styles="""
                 button {
-                    background-color: darkorange;
+                    background-color: chocolate;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid peru;
+                    border: 2px solid sandybrown;
                 }"""):
                 orange_clicked = st.button("Motivated", key="but2")
         with col3:
             with stylable_container(key="but3", css_styles="""
                 button {
-                    background-color: gold;
+                    background-color: goldenrod;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid goldenrod;
+                    border: 2px solid yellow;
                 }"""):
                 yellow_clicked = st.button("Excited", key="but3")
         with col4:
