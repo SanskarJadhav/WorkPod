@@ -529,6 +529,7 @@ def main():
         df = pd.read_csv(url)
 
         def get_recommendations(df, input, amount):
+            distances = []
             for r_song in df.values:
                 dist = 0
                 dist += np.absolute(float(input[0]) - float(r_song[4]))
