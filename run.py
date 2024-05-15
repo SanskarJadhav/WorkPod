@@ -555,7 +555,7 @@ def main():
         if red_clicked:
             clear_chat_history()
             mood = "I am feeling frustrated."
-            reply = "Oh my, 😳 well it's best to let those emotions escape through music rather than bottling it up within. Let me find some songs for you."
+            reply = "Oh! 😯 Well, music can be a great outlet for such emotions, rather than bottling them up within. I've got some songs for you."
         elif orange_clicked:
             clear_chat_history()
             mood = "I am feeling motivated to work harder."
@@ -571,11 +571,11 @@ def main():
         elif blue_clicked:
             clear_chat_history()
             mood = "I am feeling tired and worked out."
-            reply = "It sounds like you've had a busy day! 😔 I've got some soothing tunes that will help you relax and rejuvenate."
+            reply = "It sounds like you've had a busy day! 😓 I've got some soothing tunes that will help you relax and rejuvenate."
         elif purple_clicked:
             clear_chat_history()
             mood = "I am feeling gloomy."
-            reply = "Oh my, I've been there too, but don't worry, that feeling will fade away soon. Till then, embrace it through these songs."
+            reply = "Oh my, I've been there too 😟, but don't worry, that feeling will fade away soon. Till then, embrace it through these songs."
         if prompt:=mood:
             st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. The values must be relevant to the stated mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it. Keep your response short."})
 
