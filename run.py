@@ -570,7 +570,7 @@ def main():
             reply = "That's great to hear. 😊 How about we enhance that feeling of contentment with some melodies?"
         elif blue_clicked:
             clear_chat_history()
-            mood = "I am feeling tired and worked out."
+            mood = "I am feeling tired and need to relax."
             reply = "It sounds like you've had a busy day! 😓 I've got some soothing tunes that will help you relax and rejuvenate."
         elif purple_clicked:
             clear_chat_history()
