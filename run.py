@@ -545,7 +545,7 @@ def main():
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are a Spotify music recommender. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that fits my mood or can slightly uplift mine if my mood is negative. You should respond in two sentences. First sentence, you should sympathize with me and sound human. Second sentence should include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are a Spotify music recommender. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that fits my mood. Your aim is to increase work productivity from me, so if I am tired, gloomy, or frustrated, try to slightly uplift my mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
