@@ -579,6 +579,7 @@ def main():
             full_response = ''
             for i in response:
                 full_response += str(i)
+                st.write(str(i))
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
