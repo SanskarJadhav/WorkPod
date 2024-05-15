@@ -471,10 +471,18 @@ def main():
                 }"""):
                 purple_clicked = st.button("Gloomy", key="but6")
         
-        if happy_clicked:
+        if red_clicked:
             st.write("Button 1 pressed")
-        elif sad_clicked:
+        elif orange_clicked:
             st.write("Button 2 pressed")
+        elif yellow_clicked:
+            st.write("Button 3 pressed")
+        elif green_clicked:
+            st.write("Button 4 pressed")
+        elif blue_clicked:
+            st.write("Button 5 pressed")
+        elif purple_clicked:
+            st.write("Button 6 pressed")
             
 if __name__ == "__main__":
     main()
