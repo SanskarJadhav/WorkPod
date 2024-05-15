@@ -519,6 +519,8 @@ def main():
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
+
+        mood = ""
         
         if red_clicked:
             mood = "I am feeling frustrated."
