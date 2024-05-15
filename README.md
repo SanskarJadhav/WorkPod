@@ -11,6 +11,10 @@ WorkPod is a dynamic project collaboration tool developed on Streamlit, integrat
 
 ❄️ Snowflake Arctic Integration: Utilize the advanced capabilities of Snowflake Arctic Instruct to break down project ideas into actionable steps with estimated timelines.
 
-📊 Project Dashboard: Visualize your project's progress with interactive charts and graphs, including completed vs. remaining tasks and user contributions.
+📊 Project Dashboard: Visualize your project's progress with interactive charts and graphs, including number of completed tasks and user contributions.
 
-👥 Team Collaboration: Connect with your team members, share project updates, and coordinate tasks seamlessly.
+👥 Team Collaboration: Share with your team members, receive project updates, and coordinate tasks seamlessly.
+
+🎵 Music Therapy Integration: In Oasis, immerse yourself in a curated selection of Spotify songs tailored to your mood and emotional well-being. My algorithm powered by Snowflake Arctic analyzes your mood input and recommends therapeutic playlists designed to uplift, relax, or energize you.
+
+_Created for The Future of AI is Open Hackathon_
