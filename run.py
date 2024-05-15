@@ -556,7 +556,7 @@ def main():
             for line in str(full_response).splitlines():
                 cleaned_line = line.strip().lstrip("* ")
                 filtered_lines.append(cleaned_line)
-            st.session_state.messages.append(message)
+            st.session_state.musicrequest.append(message)
             st.write(filtered_lines)
             
 if __name__ == "__main__":
