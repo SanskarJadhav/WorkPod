@@ -545,7 +545,7 @@ def main():
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Based on my mood and with the goal of increasing work productivity, could you recommend the values for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to? I want exact values written in a list."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Sympathize with me and based on my mood, recommend normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to. Format of output should be a list."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
