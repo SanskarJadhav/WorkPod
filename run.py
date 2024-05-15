@@ -413,6 +413,17 @@ def main():
         st.title("Oasis - Music for your Mood :musical_note:")
         st.header("",divider="rainbow")
         username = st.session_state.get("username")
+        with st.sidebar:
+            if 'REPLICATE_API_TOKEN' in st.secrets:
+                replicate_api = st.secrets['REPLICATE_API_TOKEN']
+            else:
+                replicate_api = st.text_input('Enter Replicate API token:', type='password')
+                if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                    st.warning('Please enter your Replicate API token.', icon='⚠️')
+                    st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+    
+            os.environ['REPLICATE_API_TOKEN'] = replicate_api
+        
         st.write(f"Hello {username}. How are we feeling today?")
         
         col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -470,19 +481,72 @@ def main():
                     border: 2px solid blueviolet;
                 }"""):
                 purple_clicked = st.button("Gloomy", key="but6")
+
+        if "musicrequest" not in st.session_state.keys():
+            st.session_state.musicrequest = [{"role": "assistant", "content": "Let's vibe with some music!"}]
+        
+        @st.cache_resource(show_spinner=False)
+        def get_tokenizer():
+            return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
+    
+        def get_num_tokens(prompt):
+            """Get the number of tokens in a given prompt"""
+            tokenizer = get_tokenizer()
+            tokens = tokenizer.tokenize(prompt)
+            return len(tokens)
+        
+        # Function for generating Snowflake Arctic response
+        def generate_arctic_response():
+            prompt = []
+            for dict_message in st.session_state.musicrequest:
+                if dict_message["role"] == "user":
+                    prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+                else:
+                    prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+            
+            prompt.append("<|im_start|>assistant")
+            prompt_str = "\n".join(prompt)
+            
+            if get_num_tokens(prompt_str) >= 3072:
+                st.error("Conversation length too long. Please keep it under 3072 tokens.")
+                st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+                st.stop()
+        
+            for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                   input={"prompt": prompt_str,
+                                          "prompt_template": r"{prompt}",
+                                          "temperature": 0.6,
+                                          "top_p": 0.9,
+                                          }):
+                yield str(event)
         
         if red_clicked:
-            st.write("Button 1 pressed")
+            mood = "I am feeling frustrated."
         elif orange_clicked:
-            st.write("Button 2 pressed")
+            mood = "I am feeling motivated."
         elif yellow_clicked:
-            st.write("Button 3 pressed")
+            mood = "I am feeling excited!"
         elif green_clicked:
-            st.write("Button 4 pressed")
+            mood = "I am feeling satisfied."
         elif blue_clicked:
-            st.write("Button 5 pressed")
+            mood = "I am feeling tired."
         elif purple_clicked:
-            st.write("Button 6 pressed")
+            mood = "I am feeling gloomy."
+
+        if prompt:=mood:
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Based on my mood and with the goal of increasing work productivity, could you recommend the values for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to? List each value."})
+
+        # Generate a new response if last message is not from assistant
+        if st.session_state.musicrequest[-1]["role"] != "assistant":
+            response = generate_arctic_response()
+            full_response = st.write_stream(response)
+            message = {"role": "assistant", "content": full_response}
+            filtered_lines = []
+            for line in str(full_response).splitlines():
+                cleaned_line = line.strip().lstrip("* ")
+                filtered_lines.append(cleaned_line)
+            st.session_state.messages.append(message)
+            st.write(filtered_lines)
             
 if __name__ == "__main__":
     main()
