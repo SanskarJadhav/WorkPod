@@ -528,6 +528,10 @@ def main():
         url = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/musicdata.csv"
         df = pd.read_csv(url)
 
+        def make_clickable(val):
+            # target _blank to open new window
+            return '<a target="_blank" href="{}">{}</a>'.format(val, val)
+        
         def get_recommendations(df, input, amount):
             distances = []
             for r_song in df.values:
