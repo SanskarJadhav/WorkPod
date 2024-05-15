@@ -527,25 +527,25 @@ def main():
         
         if red_clicked:
             clear_chat_history()
-            mood = "I am feeling frustrated."
+            mood = "I am feeling frustrated and vexed."
         elif orange_clicked:
             clear_chat_history()
-            mood = "I am feeling motivated."
+            mood = "I am feeling motivated to work harder."
         elif yellow_clicked:
             clear_chat_history()
             mood = "I am feeling excited!"
         elif green_clicked:
             clear_chat_history()
-            mood = "I am feeling satisfied."
+            mood = "I am feeling satisfied with my work."
         elif blue_clicked:
             clear_chat_history()
-            mood = "I am feeling tired."
+            mood = "I am feeling tired and worked out."
         elif purple_clicked:
             clear_chat_history()
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Sympathize with me and based on my mood, recommend normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to. Format of output should be a list."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Please list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that matches my vibe and will help me feel better slightly if I am not. Format of output should be a list."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
