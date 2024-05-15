@@ -426,7 +426,7 @@ def main():
     
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
         
-        st.write(f"Hello {username}. How are we feeling today?")
+        st.write(f"Hello {username}. How are you feeling today?")
         
         col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
