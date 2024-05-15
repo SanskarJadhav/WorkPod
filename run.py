@@ -528,17 +528,18 @@ def main():
         url = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/musicdata.csv"
         df = pd.read_csv(url)
 
-        def calculate_distance(row, input_array):
-            song_values = np.array(row[['danceability', 'energy', 'speechiness', 
-                                        'acousticness', 'valence', 'tempo']])
-            return np.linalg.norm(input_array - song_values)
-        
-        def get_recommendations(df, input):
-            df['distance'] = df.apply(calculate_distance, axis=1, input_array = input)
-            df_sorted = df.sort_values(by='distance')
-            df_sorted['song_track_id'] = df_sorted['song_track_id'].apply(make_clickable)
-            top_10_songs = df_sorted[['Song', 'Performer', 'song_track_id']].head(10)
-            return top_10_songs
+        def get_recommendations(df, input, amount):
+            for r_song in df.values:
+                dist = 0
+                for col in np.arange(len(df.columns)):
+                    if col > 3:
+                        dist += np.absolute(float(input[col]) - float(r_song[col]))
+                distances.append(dist)
+            df['distance'] = distances
+            res = df.sort_values('distance')
+            res['spotify_track_id'] = res_data['spotify_track_id'].apply(make_clickable)
+            columns=['Song', 'Performer', 'spotify_track_id']
+            return res[columns][:amount]
         
         mood = ""
         
@@ -575,7 +576,7 @@ def main():
             st.session_state.musicrequest.append(message)
             recdf = get_recommendations(df, np.array(extracted_array))
             recdf.reset_index(drop=True, inplace=True)
-            st.markdown('Recommending songs similar to '+ song_name + " by " + artist_name)
+            st.subheader("Recommended Songs")
             rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
             
 if __name__ == "__main__":
