@@ -484,6 +484,9 @@ def main():
 
         if "musicrequest" not in st.session_state.keys():
             st.session_state.musicrequest = [{"role": "assistant", "content": "Let's vibe with some music!"}]
+
+        def clear_chat_history():
+            st.session_state.musicrequest = [{"role": "assistant", "content": "Let's vibe with some music!"}]
         
         @st.cache_resource(show_spinner=False)
         def get_tokenizer():
@@ -523,20 +526,26 @@ def main():
         mood = ""
         
         if red_clicked:
+            clear_chat_history()
             mood = "I am feeling frustrated."
         elif orange_clicked:
+            clear_chat_history()
             mood = "I am feeling motivated."
         elif yellow_clicked:
+            clear_chat_history()
             mood = "I am feeling excited!"
         elif green_clicked:
+            clear_chat_history()
             mood = "I am feeling satisfied."
         elif blue_clicked:
+            clear_chat_history()
             mood = "I am feeling tired."
         elif purple_clicked:
+            clear_chat_history()
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Based on my mood and with the goal of increasing work productivity, could you recommend the values for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to? List each value."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " Based on my mood and with the goal of increasing work productivity, could you recommend the values for danceability, energy, speechiness, acousticness, valence, and tempo for the ideal song that I should listen to? I want exact values written in a list."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
