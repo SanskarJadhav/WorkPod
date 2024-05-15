@@ -415,28 +415,25 @@ def main():
         username = st.session_state.get("username")
         st.write(f"Hello {username}. How are we feeling today?")
         
-        # Create buttons with st.button
-        with stylable_container(
-            key = "happy",
-            css_styles="""
-            button {
-                background-color: green;
-                border-radius: 15px;
-                color: white;
-                border: 2px solid grey;
-            }""",
-        ):
-            happy_clicked = st.button("Happy", key="happy")
-        with stylable_container(
-            key = "sad",
-            css_styles="""
-            button {
-                background-color: red;
-                border-radius: 15px;
-                color: white;
-            }""",
-        ):
-            sad_clicked = st.button("Sad", key="sad")
+        col1, col2 = st.columns(2)
+        with col1:
+            with stylable_container(key="happy", css_styles="""
+                button {
+                    background-color: green;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid palegreen;
+                }"""):
+                happy_clicked = st.button("Happy", key="happy")
+        with col2:
+            with stylable_container(key="sad", css_styles="""
+                button {
+                    background-color: red;
+                    border-radius: 15px;
+                    color: white;
+                    border: 2px solid palered;
+                }"""):
+                sad_clicked = st.button("Sad", key="sad")
 
         if happy_clicked:
             st.write("Button 1 pressed")
