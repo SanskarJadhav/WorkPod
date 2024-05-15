@@ -518,7 +518,7 @@ def main():
             for event in replicate.stream("snowflake/snowflake-arctic-instruct",
                                    input={"prompt": prompt_str,
                                           "prompt_template": r"{prompt}",
-                                          "temperature": 0.4,
+                                          "temperature": 0.2,
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
