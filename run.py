@@ -422,7 +422,7 @@ def main():
                     background-color: green;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid palegreen;
+                    border: 2px solid lime;
                 }"""):
                 happy_clicked = st.button("Happy", key="happy")
         with col2:
@@ -431,7 +431,7 @@ def main():
                     background-color: red;
                     border-radius: 15px;
                     color: white;
-                    border: 2px solid palered;
+                    border: 2px solid maroon;
                 }"""):
                 sad_clicked = st.button("Sad", key="sad")
 
