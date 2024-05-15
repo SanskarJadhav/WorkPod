@@ -537,6 +537,11 @@ def main():
             for r_song in df.values:
                 dist = 0
                 dist += np.absolute(float(input[0]) - float(r_song[4]))
+                dist += np.absolute(float(input[1]) - float(r_song[5]))
+                dist += np.absolute(float(input[2]) - float(r_song[6]))
+                dist += np.absolute(float(input[3]) - float(r_song[7]))
+                dist += np.absolute(float(input[4]) - float(r_song[8]))
+                dist += np.absolute(float(input[5]) - float(r_song[9]))
                 distances.append(dist)
             df['distance'] = distances
             res = df.sort_values('distance')
