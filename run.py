@@ -536,7 +536,7 @@ def main():
                 distances.append(dist)
             df['distance'] = distances
             res = df.sort_values('distance')
-            res['spotify_track_id'] = res_data['spotify_track_id'].apply(make_clickable)
+            res['spotify_track_id'] = res['spotify_track_id'].apply(make_clickable)
             columns=['Song', 'Performer', 'spotify_track_id']
             return res[columns][:amount]
         
