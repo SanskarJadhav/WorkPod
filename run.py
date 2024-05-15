@@ -518,7 +518,7 @@ def main():
             for event in replicate.stream("snowflake/snowflake-arctic-instruct",
                                    input={"prompt": prompt_str,
                                           "prompt_template": r"{prompt}",
-                                          "temperature": 0.6,
+                                          "temperature": 0.4,
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
@@ -557,7 +557,6 @@ def main():
                 cleaned_line = line.strip().lstrip("* ")
                 filtered_lines.append(cleaned_line)
             st.session_state.musicrequest.append(message)
-            st.write(filtered_lines)
             
 if __name__ == "__main__":
     main()
