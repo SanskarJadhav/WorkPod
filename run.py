@@ -576,14 +576,9 @@ def main():
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
             response = generate_arctic_response()
-            chunks = []
-            while True:
-                chunk = response.read(4096)  # Read 4KB chunks (adjust as needed)
-                if not chunk:
-                    break
-                chunks.append(chunk)
-            # Concatenate the chunks to form the full response
-            full_response = b''.join(chunks)
+            full_response = ''
+            for i in response:
+                full_response += str(i)
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
