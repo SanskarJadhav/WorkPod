@@ -366,28 +366,28 @@ def main():
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
                     st.sidebar.image(image, use_column_width=True, caption=user[1])
-
-            # Display progress bar chart for completed tasks percentage out of total tasks
-            completed, total = get_completed_and_total_tasks(project_id)
-            if completed == total:
-                st.subheader("Congratulations! You've successfully completed your project!")
-            if st.button("Delete Project", key="delete_project_button"):
-                delete_project(project_id)
-                st.success(f"Project '{project_id}' has been successfully deleted. Hope to see you again!")
-            completed_percentage = int((completed / total) * 100)
-            st.subheader("Progress Report")
-            st.write(f"Completed Tasks: {completed} / {total}")
-            st.progress(completed_percentage, "Progress of Project Completion")
-    
-            # Display user contributions pie chart
-            user_contributions = get_user_contributions(project_id)
-            user_contributions_df = pd.DataFrame(user_contributions, columns=["User", "Completed Tasks"])
-            fig = px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions")
-            fig.update_traces(textposition='inside', textinfo='percent+label', textfont_color='white')
-            st.plotly_chart(fig)
         
             tasks = get_tasks_by_project_id(project_id)
             if tasks:
+                # Display progress bar chart for completed tasks percentage out of total tasks
+                completed, total = get_completed_and_total_tasks(project_id)
+                if completed == total:
+                    st.subheader("Congratulations! You've successfully completed your project!")
+                    if st.button("Delete Project", key="delete_project_button"):
+                        delete_project(project_id)
+                        st.success(f"Project '{project_id}' has been successfully deleted. Hope to see you again!")
+                completed_percentage = int((completed / total) * 100)
+                st.subheader("Progress Report")
+                st.write(f"Completed Tasks: {completed} / {total}")
+                st.progress(completed_percentage, "Progress of Project Completion")
+        
+                # Display user contributions pie chart
+                user_contributions = get_user_contributions(project_id)
+                user_contributions_df = pd.DataFrame(user_contributions, columns=["User", "Completed Tasks"])
+                fig = px.pie(user_contributions_df, names="User", values="Completed Tasks", title="User Contributions")
+                fig.update_traces(textposition='inside', textinfo='percent+label', textfont_color='white')
+                st.plotly_chart(fig)
+            
                 st.subheader("Tasks from Arctic as To-Dos:")
                 for task in tasks:
                     task_id, _, task_description, completed, completed_by = task
