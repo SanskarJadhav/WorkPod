@@ -520,7 +520,7 @@ def main():
             for event in replicate.stream("snowflake/snowflake-arctic-instruct",
                                    input={"prompt": prompt_str,
                                           "prompt_template": r"{prompt}",
-                                          "temperature": 0.4,
+                                          "temperature": 0.5,
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
@@ -554,7 +554,7 @@ def main():
         
         if red_clicked:
             clear_chat_history()
-            mood = "I am feeling very annoyed and frustrated."
+            mood = "I am feeling frustrated and annoyed."
             reply = "Oh! 😯 Well, music can be a great outlet for such emotions. I've got some songs for you that may uplift your mood."
         elif orange_clicked:
             clear_chat_history()
@@ -577,7 +577,7 @@ def main():
             mood = "I am feeling gloomy."
             reply = "Oh my, I've been there too 😟, but don't worry, that feeling will fade away soon. Let it flow out through these tunes."
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. The values must be relevant to the stated mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it. Keep your response short."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it. Keep your response short."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
