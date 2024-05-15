@@ -368,9 +368,9 @@ def main():
             completed, total = get_completed_and_total_tasks(project_id)
             if completed == total:
                 st.subheader("Congratulations! You've successfully completed your project!")
-                if st.button("Delete Project", key="delete_project_button"):
-                    delete_project(project_id)
-                    st.success(f"Project '{project_id}' has been successfully deleted. Hope to see you again!")
+            if st.button("Delete Project", key="delete_project_button"):
+                delete_project(project_id)
+                st.success(f"Project '{project_id}' has been successfully deleted. Hope to see you again!")
             completed_percentage = int((completed / total) * 100)
             st.subheader("Progress Report")
             st.write(f"Completed Tasks: {completed} / {total}")
