@@ -417,25 +417,27 @@ def main():
         
         # Create buttons with st.button
         with stylable_container(
-            "green",
+            key = "happy",
             css_styles="""
             button {
-                background-color: #00FF00;
+                background-color: green;
+                border-radius: 10px;
             }""",
         ):
-            button1_clicked = st.button("Happy", key="button1")
+            happy_clicked = st.button("Happy", key="happy")
         with stylable_container(
-            "red",
+            key = "sad",
             css_styles="""
             button {
-                background-color: #FF0000;
+                background-color: red;
+                border-radius: 10px;
             }""",
         ):
-            button2_clicked = st.button("Sad", key="button2")
+            sad_clicked = st.button("Sad", key="sad")
 
-        if button1_clicked:
+        if happy_clicked:
             st.write("Button 1 pressed")
-        elif button2_clicked:
+        elif sad_clicked:
             st.write("Button 2 pressed")
             
 if __name__ == "__main__":
