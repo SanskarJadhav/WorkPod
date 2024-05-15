@@ -424,8 +424,11 @@ def main():
                 border-radius: 15px;
                 color: white;
             }
-            button:onhover {
+            button:hover {
                 border-color: white;
+            }
+            button:active {
+                border-color: white
             }""",
         ):
             happy_clicked = st.button("Happy", key="happy")
