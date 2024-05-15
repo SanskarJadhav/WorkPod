@@ -423,7 +423,7 @@ def main():
                 background-color: green;
                 border-radius: 15px;
                 color: white;
-                border: 2px solid #0f0f0f;
+                border: 2px solid grey;
             }""",
         ):
             happy_clicked = st.button("Happy", key="happy")
