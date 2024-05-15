@@ -520,7 +520,7 @@ def main():
             for event in replicate.stream("snowflake/snowflake-arctic-instruct",
                                    input={"prompt": prompt_str,
                                           "prompt_template": r"{prompt}",
-                                          "temperature": 0.6,
+                                          "temperature": 0.4,
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
@@ -571,7 +571,7 @@ def main():
             mood = "I am feeling gloomy."
 
         if prompt:=mood:
-            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are a music therapist. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song based on my mood. Your aim is to increase overall productivity from me, but you should not tell me that. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it."})
+            st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it."})
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
