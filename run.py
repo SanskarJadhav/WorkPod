@@ -531,9 +531,7 @@ def main():
         def get_recommendations(df, input, amount):
             for r_song in df.values:
                 dist = 0
-                for col in np.arange(len(df.columns)):
-                    if col > 3:
-                        dist += np.absolute(float(input[col]) - float(r_song[col]))
+                dist += np.absolute(float(input[0]) - float(r_song['danceability']))
                 distances.append(dist)
             df['distance'] = distances
             res = df.sort_values('distance')
