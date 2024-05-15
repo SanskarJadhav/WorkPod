@@ -421,11 +421,11 @@ def main():
             css_styles="""
             button {
                 background-color: green;
-                border-radius: 10px;
+                border-radius: 15px;
                 color: white;
             }
             button:onhover {
-                color: white;
+                border-color: white;
             }""",
         ):
             happy_clicked = st.button("Happy", key="happy")
@@ -434,7 +434,7 @@ def main():
             css_styles="""
             button {
                 background-color: red;
-                border-radius: 10px;
+                border-radius: 15px;
                 color: white;
             }""",
         ):
