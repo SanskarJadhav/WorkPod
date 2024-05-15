@@ -160,7 +160,7 @@ def main():
 
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpodtitle.png", use_column_width=True)
         st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/dolphinwordcloud.png", use_column_width=True)
-        page = st.radio("", ["Registration", "Login", "Arctic", "OneDash"])
+        page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "OneSpace"])
 
 
     if page == "Registration":
@@ -407,6 +407,12 @@ def main():
                 st.info("No tasks available.")
         else:
             st.info("Please log in first")
+
+    elif page == "OneSpace":
+        st.title("OneSpace - Music for your Mood :music:")
+        st.header("",divider="rainbow")
+        username = st.session_state.get("username")
+        st.write(f"Hello {username}. How are we feeling today?")
             
 if __name__ == "__main__":
     main()
