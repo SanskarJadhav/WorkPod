@@ -413,7 +413,6 @@ def main():
 
     elif page == "Oasis":
         st.title("Oasis - Music for your Mood :musical_note:")
-        st.write("Powered by Snowflake Arctic")
         st.header("",divider="rainbow")
         username = st.session_state.get("username")
         with st.sidebar:
