@@ -6,6 +6,7 @@ from PIL import Image
 import io
 import replicate
 import os
+import re
 from transformers import AutoTokenizer
 import plotly.express as px
 import pandas as pd
@@ -552,11 +553,11 @@ def main():
             response = generate_arctic_response()
             full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
-            filtered_lines = []
-            for line in str(full_response).splitlines():
-                cleaned_line = line.strip().lstrip("* ")
-                filtered_lines.append(cleaned_line)
+            match = re.search(r'\[(.*?)\]', full_response)
+            if match:
+                extracted_array = match.group(1).split(', ')
             st.session_state.musicrequest.append(message)
+            st.write(extracted_array)
             
 if __name__ == "__main__":
     main()
