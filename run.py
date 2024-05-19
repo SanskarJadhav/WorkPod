@@ -161,8 +161,8 @@ def main():
     # Page navigation
     with st.sidebar:
 
-        st.image("https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/workpodtitle.png", use_column_width=True)
-        st.image("https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/dolphinwordcloud.png", use_column_width=True)
+        st.image("./workpodtitle.png", use_column_width=True)
+        st.image("./dolphinwordcloud.png", use_column_width=True)
         page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "Oasis"])
 
 
@@ -523,7 +523,7 @@ def main():
                                           }):
                 yield str(event)
 
-        url = "https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/musicdata.csv"
+        url = "./musicdata.csv"
         df = pd.read_csv(url)
 
         def make_clickable(val):
