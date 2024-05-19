@@ -157,12 +157,12 @@ def main():
     # Create SQLite database if it doesn't exist
     create_database()
     # Set page title and navigation
-    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/WP.png")
+    st.set_page_config(page_title="WorkPod", layout="wide", initial_sidebar_state="expanded", page_icon = "./WP.png")
     # Page navigation
     with st.sidebar:
 
-        st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/workpodtitle.png", use_column_width=True)
-        st.image("https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/dolphinwordcloud.png", use_column_width=True)
+        st.image("https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/workpodtitle.png", use_column_width=True)
+        st.image("https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/dolphinwordcloud.png", use_column_width=True)
         page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "Oasis"])
 
 
@@ -523,7 +523,7 @@ def main():
                                           }):
                 yield str(event)
 
-        url = "https://raw.githubusercontent.com/SanskarJadhav/profileweb/main/musicdata.csv"
+        url = "https://raw.githubusercontent.com/SanskarJadhav/WorkPod/main/musicdata.csv"
         df = pd.read_csv(url)
 
         def make_clickable(val):
