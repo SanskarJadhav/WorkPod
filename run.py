@@ -423,8 +423,11 @@ def main():
                     st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
     
             os.environ['REPLICATE_API_TOKEN'] = replicate_api
-        
-        st.write(f"Hello {username}. How are you feeling today?")
+
+        if username:
+            st.write(f"Hello {username}. How are you feeling today?")
+        else:
+            st.write("Hello. How are you feeling today?")
         
         col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
