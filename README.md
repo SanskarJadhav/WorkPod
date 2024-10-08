@@ -3,6 +3,8 @@
 
 **Link:** [WorkPod](https://workpod.streamlit.app)
 
+**Temp:** [Slack](https://go.slack.com/get-started/enQtNzgzNzc3MjkyMTY3MC02ZDhiZTVlN2FmOWVlZDgyZjc4ZDNlNWZkZmRjOTE1M2QxZGQ3NDlkMGQ0MzMxMmRmMzc1ODJlMDllYmNkZDk0?e=U2Fuc2thci5KYWRoYXZAa2FseWFuaS5pbg%3D%3D&i=default&m=slack&x=x-a7829847536375)
+
 **Introduction**
 
 WorkPod is a dynamic project collaboration tool developed on Streamlit, integrating the power of SQLite and Snowflake Arctic Instruct. It's designed to streamline team communication, project management, and progress tracking, all in one intuitive platform.
