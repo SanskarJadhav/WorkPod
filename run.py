@@ -71,56 +71,63 @@ def estimate_num_tokens(text):
 
 
 MUSIC_FEATURES = ["danceability", "energy", "speechiness", "acousticness", "valence", "tempo_norm"]
-MOOD_AUDIO_PROFILES = {
+MOOD_AUDIO_RANGES = {
     "frustrated": {
-        "danceability": 0.48,
-        "energy": 0.83,
-        "speechiness": 0.10,
-        "acousticness": 0.16,
-        "valence": 0.32,
-        "tempo_norm": 0.63,
+        "danceability": (0.40, 0.58),
+        "energy": (0.72, 0.94),
+        "speechiness": (0.06, 0.16),
+        "acousticness": (0.06, 0.28),
+        "valence": (0.20, 0.44),
+        "tempo_norm": (0.52, 0.74),
     },
     "motivated": {
-        "danceability": 0.68,
-        "energy": 0.88,
-        "speechiness": 0.08,
-        "acousticness": 0.09,
-        "valence": 0.72,
-        "tempo_norm": 0.58,
+        "danceability": (0.58, 0.78),
+        "energy": (0.76, 0.96),
+        "speechiness": (0.04, 0.13),
+        "acousticness": (0.02, 0.18),
+        "valence": (0.60, 0.84),
+        "tempo_norm": (0.48, 0.68),
     },
     "excited": {
-        "danceability": 0.78,
-        "energy": 0.90,
-        "speechiness": 0.09,
-        "acousticness": 0.08,
-        "valence": 0.86,
-        "tempo_norm": 0.68,
+        "danceability": (0.68, 0.88),
+        "energy": (0.80, 0.98),
+        "speechiness": (0.04, 0.15),
+        "acousticness": (0.01, 0.16),
+        "valence": (0.74, 0.94),
+        "tempo_norm": (0.56, 0.80),
     },
     "satisfied": {
-        "danceability": 0.58,
-        "energy": 0.52,
-        "speechiness": 0.04,
-        "acousticness": 0.45,
-        "valence": 0.72,
-        "tempo_norm": 0.42,
+        "danceability": (0.48, 0.68),
+        "energy": (0.42, 0.64),
+        "speechiness": (0.02, 0.08),
+        "acousticness": (0.32, 0.58),
+        "valence": (0.60, 0.84),
+        "tempo_norm": (0.32, 0.52),
     },
     "tired": {
-        "danceability": 0.36,
-        "energy": 0.25,
-        "speechiness": 0.04,
-        "acousticness": 0.78,
-        "valence": 0.38,
-        "tempo_norm": 0.34,
+        "danceability": (0.24, 0.46),
+        "energy": (0.14, 0.36),
+        "speechiness": (0.02, 0.08),
+        "acousticness": (0.62, 0.90),
+        "valence": (0.28, 0.50),
+        "tempo_norm": (0.22, 0.44),
     },
     "gloomy": {
-        "danceability": 0.38,
-        "energy": 0.34,
-        "speechiness": 0.04,
-        "acousticness": 0.70,
-        "valence": 0.18,
-        "tempo_norm": 0.38,
+        "danceability": (0.28, 0.48),
+        "energy": (0.22, 0.46),
+        "speechiness": (0.02, 0.08),
+        "acousticness": (0.54, 0.84),
+        "valence": (0.08, 0.30),
+        "tempo_norm": (0.28, 0.48),
     },
 }
+
+
+def sample_mood_audio_profile(mood):
+    return {
+        feature: np.random.uniform(low, high)
+        for feature, (low, high) in MOOD_AUDIO_RANGES[mood].items()
+    }
 
 
 def prepare_music_dataset(df):
@@ -794,7 +801,7 @@ def main():
             st.write("")
             st.write(reply)
             selected_mood = st.session_state.get("selected_oasis_mood", selected_mood)
-            recdf = get_recommendations(df, MOOD_AUDIO_PROFILES[selected_mood], 10)
+            recdf = get_recommendations(df, sample_mood_audio_profile(selected_mood), 10)
             recdf.reset_index(drop=True, inplace=True)
             st.subheader("Recommended Songs")
             rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
