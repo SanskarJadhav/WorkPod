@@ -196,15 +196,48 @@ def get_users_by_project_id(project_id):
     conn.close()
     return data
 
-# Function to extract tasks from Arctic response
-def extract_tasks_from_response(response):
-    tasks = []
-    for message in response:
-        if message["role"] == "assistant":
-            # Extract the list of tasks from the assistant's message
-            response_content = message["content"]
-            tasks = [task.strip() for task in response_content.split('\n') if task.strip()]
-    return tasks
+def parse_task_lines(response_content):
+    """Extract clean task rows from a model-generated project breakdown."""
+    task_lines = []
+    fallback_lines = []
+    task_pattern = re.compile(r"^\s*(?:[-*]\s*)?(?:\d+[\).\:-]\s*|Step\s+\d+[\).\:-]\s*)(.+)$", re.IGNORECASE)
+    bullet_pattern = re.compile(r"^\s*[-*]\s+(.+)$")
+
+    for raw_line in str(response_content).splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("```") or line.lower() in {"tasks:", "task list:", "output:"}:
+            continue
+
+        numbered_match = task_pattern.match(line)
+        bullet_match = bullet_pattern.match(line)
+
+        if numbered_match:
+            task_text = numbered_match.group(1).strip()
+            task_number = len(task_lines) + 1
+            task_lines.append(f"{task_number}. {task_text}")
+        elif bullet_match:
+            task_text = bullet_match.group(1).strip()
+            task_number = len(task_lines) + 1
+            task_lines.append(f"{task_number}. {task_text}")
+        else:
+            fallback_lines.append(line)
+
+    if not task_lines:
+        task_lines = [
+            f"{index}. {line}"
+            for index, line in enumerate(fallback_lines, start=1)
+            if len(line) > 2
+        ]
+
+    cleaned_tasks = []
+    seen = set()
+    for task in task_lines:
+        task = re.sub(r"\s+", " ", task).strip()
+        if task and task not in seen:
+            cleaned_tasks.append(task)
+            seen.add(task)
+
+    return cleaned_tasks
 
 # Main Streamlit app
 def main():
@@ -376,10 +409,11 @@ def main():
                 {
                     "role": "system",
                     "content": (
-                        "You are WorkPod AI, a concise project-planning assistant. "
-                        "Break project ideas into a numbered list of actionable tasks. "
-                        "Each task must include a short title and an estimated completion time. "
-                        "Start the task list with '1.' so the app can save it to the dashboard."
+                        "Purpose: Convert a project idea into dashboard-ready tasks for WorkPod. "
+                        "Action: Break the project into 5 to 8 concrete implementation tasks. "
+                        "Output: Return only a numbered list. Each line must follow this exact format: "
+                        "1. Task title - expected time: X days. "
+                        "Do not include greetings, summaries, markdown headings, blank lines, or extra notes."
                     ),
                 },
             ] + st.session_state.messages
@@ -387,7 +421,7 @@ def main():
         
         # User-provided prompt
         if prompt := st.chat_input(disabled=(not use_groq and not replicate_api) or (use_groq and not groq_api)):
-            st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps as bullet points. Highlight what each step will be and expected time for completion of each. Not too long."})
+            st.session_state.messages.append({"role": "user", "content": prompt + " Break this project into WorkPod dashboard tasks. Return only the numbered task list in the required format."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
 
@@ -397,23 +431,17 @@ def main():
                 response = generate_groq_project_response() if use_groq else generate_snowflake_arctic_response()
                 full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
-            filtered_lines = []
-            # Flag to indicate when to start saving lines
-            save_lines = False
-            for line in str(full_response).splitlines():
-                # Check if the line starts with "1."
-                if line.strip().startswith("1."):
-                    save_lines = True
-                if save_lines:
-                    cleaned_line = line.strip().lstrip("* ")
-                    filtered_lines.append(cleaned_line)
+            filtered_lines = parse_task_lines(full_response)
             st.session_state.messages.append(message)
             st.session_state.tasks = filtered_lines
             project_id = st.session_state.get("project_id")
             if project_id:
-                for task_description in filtered_lines:
-                    insert_task(project_id, task_description)
-                st.success("Tasks pushed to OneDash!")
+                if filtered_lines:
+                    for task_description in filtered_lines:
+                        insert_task(project_id, task_description)
+                    st.success("Tasks pushed to OneDash!")
+                else:
+                    st.warning("I could not find task lines in the model response. Please try again with a little more project detail.")
             else:
                 st.error("Project ID not found. Please log in first.")
 
@@ -463,10 +491,13 @@ def main():
                 fig.update_traces(textposition='inside', textinfo='percent+label', textfont_color='white')
                 st.plotly_chart(fig)
             
-                st.subheader("Tasks from Arctic as To-Dos:")
+                st.subheader("Tasks from WorkPod AI as To-Dos:")
                 for task in tasks:
                     task_id, _, task_description, completed, completed_by = task
-                    if task_description[0].isdigit():
+                    task_description = (task_description or "").strip()
+                    if not task_description:
+                        continue
+                    if task_description[:1].isdigit():
                         st.write(f":blue[{task_description}]")
                     else:
                         st.write(f"- {task_description}")
