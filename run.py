@@ -7,13 +7,67 @@ import io
 import replicate
 import os
 import re
-from transformers import AutoTokenizer
+import json
 import plotly.express as px
 import pandas as pd
 import numpy as np
 
-# Set assistant icon to Snowflake logo
-icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "🐬"}
+DEFAULT_GROQ_MODEL = os.getenv("WORKPOD_GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+# Set assistant icon to WorkPod logo for the default Groq LLM path
+icons = {"assistant": "./WP.png", "user": "🐬"}
+
+
+def stream_groq_chat(messages, api_key, model=DEFAULT_GROQ_MODEL, temperature=0.6):
+    """Stream a chat response from Groq's OpenAI-compatible API."""
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+        "temperature": temperature,
+        "top_p": 0.9,
+    }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        response = requests.post(GROQ_CHAT_URL, headers=headers, json=payload, stream=True, timeout=(10, 180))
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as exc:
+        detail = exc.response.text if exc.response is not None else str(exc)
+        st.error(
+            f"Groq returned an error for `{model}`: {detail}. "
+            "Check your GROQ_API_KEY and model name."
+        )
+        st.stop()
+    except requests.exceptions.RequestException as exc:
+        st.error(f"Groq request failed: {exc}")
+        st.stop()
+
+    for line in response.iter_lines():
+        if not line:
+            continue
+        decoded_line = line.decode("utf-8")
+        if not decoded_line.startswith("data: "):
+            continue
+        data = decoded_line.removeprefix("data: ").strip()
+        if data == "[DONE]":
+            break
+        try:
+            event = json.loads(data)
+        except json.JSONDecodeError:
+            continue
+
+        chunk = event.get("choices", [{}])[0].get("delta", {}).get("content", "")
+        if chunk:
+            yield chunk
+
+
+def estimate_num_tokens(text):
+    """Approximate token count without requiring heavyweight tokenizer dependencies."""
+    return max(1, len(re.findall(r"\w+|[^\w\s]", text)))
 
 # Function to create SQLite database and table if not exists
 def create_database():
@@ -161,8 +215,8 @@ def main():
     # Page navigation
     with st.sidebar:
 
-        st.image("./workpodtitle.png", use_column_width=True)
-        st.image("./dolphinwordcloud.png", use_column_width=True)
+        st.image("./workpodtitle.png", width="stretch")
+        st.image("./dolphinwordcloud.png", width="stretch")
         page = st.radio("", ["Registration", "Login", "Arctic", "OneDash", "Oasis"])
 
 
@@ -240,24 +294,43 @@ def main():
         st.title("Let's Break The Ice!")
         username = st.session_state.get("username")
         with st.sidebar:
-            if 'REPLICATE_API_TOKEN' in st.secrets:
-                replicate_api = st.secrets['REPLICATE_API_TOKEN']
+            model_provider = st.selectbox(
+                "Model Provider",
+                ["Groq - Llama 3.1 8B Instant", "Snowflake Arctic via Replicate (legacy)"],
+            )
+            use_groq = model_provider.startswith("Groq")
+            replicate_api = ""
+            groq_api = ""
+            groq_model = DEFAULT_GROQ_MODEL
+            if use_groq:
+                groq_model = st.text_input("Groq model", value=DEFAULT_GROQ_MODEL)
+                if 'GROQ_API_KEY' in st.secrets:
+                    groq_api = st.secrets['GROQ_API_KEY']
+                    st.caption("Using Groq API key from Streamlit secrets.")
+                else:
+                    groq_api = st.text_input('Enter Groq API key:', type='password')
+                    if not groq_api:
+                        st.warning('Please enter your Groq API key.', icon='⚠️')
+                os.environ['GROQ_API_KEY'] = groq_api
             else:
-                replicate_api = st.text_input('Enter Replicate API token:', type='password')
-                if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
-                    st.warning('Please enter your Replicate API token.', icon='⚠️')
-                    st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
-    
-            os.environ['REPLICATE_API_TOKEN'] = replicate_api
+                if 'REPLICATE_API_TOKEN' in st.secrets:
+                    replicate_api = st.secrets['REPLICATE_API_TOKEN']
+                else:
+                    replicate_api = st.text_input('Enter Replicate API token:', type='password')
+                    if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                        st.warning('Please enter your Replicate API token.', icon='⚠️')
+                        st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+        
+                os.environ['REPLICATE_API_TOKEN'] = replicate_api
             st.subheader("Model Creativity Control")
             temperature = st.sidebar.slider('temperature', min_value=0.2, max_value=1.5, value=0.6, step=0.1)
     
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
             if username:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             else:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
     
         # Display or clear chat messages
         for message in st.session_state.messages:
@@ -266,24 +339,14 @@ def main():
     
         def clear_chat_history():
             if username:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             else:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm Arctic, and yeah I'm pretty cool ;) I heard you are working on some special project. I'm very excited to hear more about it! I could even help break down the project for you."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
     
-        @st.cache_resource(show_spinner=False)
-        def get_tokenizer():
-            return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
-    
-        def get_num_tokens(prompt):
-            """Get the number of tokens in a given prompt"""
-            tokenizer = get_tokenizer()
-            tokens = tokenizer.tokenize(prompt)
-            return len(tokens)
-        
-        # Function for generating Snowflake Arctic response
-        def generate_arctic_response():
+        # Function for generating Snowflake Arctic response kept as the legacy path
+        def generate_snowflake_arctic_response():
             prompt = []
             for dict_message in st.session_state.messages:
                 if dict_message["role"] == "user":
@@ -295,7 +358,7 @@ def main():
             prompt.append("Cool! ")
             prompt_str = "\n".join(prompt)
             
-            if get_num_tokens(prompt_str) >= 3072:
+            if estimate_num_tokens(prompt_str) >= 3072:
                 st.error("Conversation length too long. Please keep it under 3072 tokens.")
                 st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
                 st.stop()
@@ -307,17 +370,31 @@ def main():
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
+
+        def generate_groq_project_response():
+            groq_messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are WorkPod AI, a concise project-planning assistant. "
+                        "Break project ideas into a numbered list of actionable tasks. "
+                        "Each task must include a short title and an estimated completion time. "
+                        "Start the task list with '1.' so the app can save it to the dashboard."
+                    ),
+                },
+            ] + st.session_state.messages
+            return stream_groq_chat(groq_messages, api_key=groq_api, model=groq_model, temperature=temperature)
         
         # User-provided prompt
-        if prompt := st.chat_input(disabled=not replicate_api):
+        if prompt := st.chat_input(disabled=(not use_groq and not replicate_api) or (use_groq and not groq_api)):
             st.session_state.messages.append({"role": "user", "content": prompt + " Could you help me by breaking down this project into steps as bullet points. Highlight what each step will be and expected time for completion of each. Not too long."})
             with st.chat_message("user", avatar="🐬"):
                 st.write(prompt)
 
         # Generate a new response if last message is not from assistant
         if st.session_state.messages[-1]["role"] != "assistant":
-            with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
-                response = generate_arctic_response()
+            with st.chat_message("assistant", avatar=icons["assistant"] if use_groq else "./Snowflake_Logomark_blue.svg"):
+                response = generate_groq_project_response() if use_groq else generate_snowflake_arctic_response()
                 full_response = st.write_stream(response)
             message = {"role": "assistant", "content": full_response}
             filtered_lines = []
@@ -365,7 +442,7 @@ def main():
                 if user[4] is not None:
                     # Display uploaded image
                     image = Image.open(io.BytesIO(user[4]))
-                    st.sidebar.image(image, use_column_width=True, caption=user[1])
+                    st.sidebar.image(image, width="stretch", caption=user[1])
         
             tasks = get_tasks_by_project_id(project_id)
             if tasks:
@@ -414,15 +491,35 @@ def main():
         st.header("",divider="rainbow")
         username = st.session_state.get("username")
         with st.sidebar:
-            if 'REPLICATE_API_TOKEN' in st.secrets:
-                replicate_api = st.secrets['REPLICATE_API_TOKEN']
+            model_provider = st.selectbox(
+                "Model Provider",
+                ["Groq - Llama 3.1 8B Instant", "Snowflake Arctic via Replicate (legacy)"],
+                key="oasis_model_provider",
+            )
+            use_groq = model_provider.startswith("Groq")
+            replicate_api = ""
+            groq_api = ""
+            groq_model = DEFAULT_GROQ_MODEL
+            if use_groq:
+                groq_model = st.text_input("Groq model", value=DEFAULT_GROQ_MODEL, key="oasis_groq_model")
+                if 'GROQ_API_KEY' in st.secrets:
+                    groq_api = st.secrets['GROQ_API_KEY']
+                    st.caption("Using Groq API key from Streamlit secrets.")
+                else:
+                    groq_api = st.text_input('Enter Groq API key:', type='password', key="oasis_groq_api_key")
+                    if not groq_api:
+                        st.warning('Please enter your Groq API key.', icon='⚠️')
+                os.environ['GROQ_API_KEY'] = groq_api
             else:
-                replicate_api = st.text_input('Enter Replicate API token:', type='password')
-                if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
-                    st.warning('Please enter your Replicate API token.', icon='⚠️')
-                    st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
-    
-            os.environ['REPLICATE_API_TOKEN'] = replicate_api
+                if 'REPLICATE_API_TOKEN' in st.secrets:
+                    replicate_api = st.secrets['REPLICATE_API_TOKEN']
+                else:
+                    replicate_api = st.text_input('Enter Replicate API token:', type='password')
+                    if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+                        st.warning('Please enter your Replicate API token.', icon='⚠️')
+                        st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+        
+                os.environ['REPLICATE_API_TOKEN'] = replicate_api
 
         if username:
             st.write(f"Hello {username}. How are you feeling today?")
@@ -491,18 +588,8 @@ def main():
         def clear_chat_history():
             st.session_state.musicrequest = [{"role": "assistant", "content": "Let's vibe with some music!"}]
         
-        @st.cache_resource(show_spinner=False)
-        def get_tokenizer():
-            return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
-    
-        def get_num_tokens(prompt):
-            """Get the number of tokens in a given prompt"""
-            tokenizer = get_tokenizer()
-            tokens = tokenizer.tokenize(prompt)
-            return len(tokens)
-        
-        # Function for generating Snowflake Arctic response
-        def generate_arctic_response():
+        # Function for generating Snowflake Arctic response kept as the legacy path
+        def generate_snowflake_arctic_response():
             prompt = []
             for dict_message in st.session_state.musicrequest:
                 if dict_message["role"] == "user":
@@ -513,7 +600,7 @@ def main():
             prompt.append("<|im_start|>assistant")
             prompt_str = "\n".join(prompt)
             
-            if get_num_tokens(prompt_str) >= 3072:
+            if estimate_num_tokens(prompt_str) >= 3072:
                 st.error("Conversation length too long. Please keep it under 3072 tokens.")
                 st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
                 st.stop()
@@ -525,6 +612,20 @@ def main():
                                           "top_p": 0.9,
                                           }):
                 yield str(event)
+
+        def generate_groq_music_response():
+            groq_messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a music therapy feature assistant. Return a short answer that includes "
+                        "exactly one Python-style array with six numbers between 0 and 1 in this order: "
+                        "danceability, energy, speechiness, acousticness, valence, tempo. "
+                        "Do not include any other bracketed list."
+                    ),
+                },
+            ] + st.session_state.musicrequest
+            return stream_groq_chat(groq_messages, api_key=groq_api, model=groq_model, temperature=0.5)
 
         url = "./musicdata.csv"
         df = pd.read_csv(url)
@@ -584,19 +685,25 @@ def main():
         if st.session_state.musicrequest[-1]["role"] != "assistant":
             st.write("")
             st.write(reply)
-            response = generate_arctic_response()
+            if use_groq and not groq_api:
+                st.info("Please enter a Groq API key to generate recommendations.")
+                st.stop()
+            response = generate_groq_music_response() if use_groq else generate_snowflake_arctic_response()
             full_response = ''
             for i in response:
                 full_response += str(i)
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
             if match:
-                extracted_array = match.group(1).split(', ')
-                st.session_state.musicrequest.append(message)
-                recdf = get_recommendations(df, extracted_array, 10)
-                recdf.reset_index(drop=True, inplace=True)
-                st.subheader("Recommended Songs")
-                rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
+                extracted_array = re.findall(r'0?\.\d+|1(?:\.0+)?|0(?:\.0+)?', match.group(1))
+                if len(extracted_array) >= 6:
+                    st.session_state.musicrequest.append(message)
+                    recdf = get_recommendations(df, extracted_array[:6], 10)
+                    recdf.reset_index(drop=True, inplace=True)
+                    st.subheader("Recommended Songs")
+                    rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
+                else:
+                    st.info("Please try again.")
             else:
                 st.info("Please try again.")
             

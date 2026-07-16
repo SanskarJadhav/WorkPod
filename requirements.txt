@@ -1,5 +1,6 @@
 streamlit
 replicate
-transformers
 plotly
 streamlit_extras
+requests
+pillow
