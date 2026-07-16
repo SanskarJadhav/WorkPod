@@ -69,6 +69,76 @@ def estimate_num_tokens(text):
     """Approximate token count without requiring heavyweight tokenizer dependencies."""
     return max(1, len(re.findall(r"\w+|[^\w\s]", text)))
 
+
+MUSIC_FEATURES = ["danceability", "energy", "speechiness", "acousticness", "valence", "tempo_norm"]
+MOOD_AUDIO_PROFILES = {
+    "frustrated": {
+        "danceability": 0.48,
+        "energy": 0.83,
+        "speechiness": 0.10,
+        "acousticness": 0.16,
+        "valence": 0.32,
+        "tempo_norm": 0.63,
+    },
+    "motivated": {
+        "danceability": 0.68,
+        "energy": 0.88,
+        "speechiness": 0.08,
+        "acousticness": 0.09,
+        "valence": 0.72,
+        "tempo_norm": 0.58,
+    },
+    "excited": {
+        "danceability": 0.78,
+        "energy": 0.90,
+        "speechiness": 0.09,
+        "acousticness": 0.08,
+        "valence": 0.86,
+        "tempo_norm": 0.68,
+    },
+    "satisfied": {
+        "danceability": 0.58,
+        "energy": 0.52,
+        "speechiness": 0.04,
+        "acousticness": 0.45,
+        "valence": 0.72,
+        "tempo_norm": 0.42,
+    },
+    "tired": {
+        "danceability": 0.36,
+        "energy": 0.25,
+        "speechiness": 0.04,
+        "acousticness": 0.78,
+        "valence": 0.38,
+        "tempo_norm": 0.34,
+    },
+    "gloomy": {
+        "danceability": 0.38,
+        "energy": 0.34,
+        "speechiness": 0.04,
+        "acousticness": 0.70,
+        "valence": 0.18,
+        "tempo_norm": 0.38,
+    },
+}
+
+
+def prepare_music_dataset(df):
+    """Coerce audio columns to numeric values and add a normalized tempo feature."""
+    df = df.copy()
+    audio_columns = ["danceability", "energy", "speechiness", "acousticness", "valence", "tempo"]
+    for column in audio_columns:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
+
+    df = df.dropna(subset=audio_columns + ["Song", "Performer", "spotify_track_id"])
+    tempo_min = df["tempo"].min()
+    tempo_max = df["tempo"].max()
+    if tempo_max == tempo_min:
+        df["tempo_norm"] = 0.5
+    else:
+        df["tempo_norm"] = (df["tempo"] - tempo_min) / (tempo_max - tempo_min)
+    return df
+
 # Function to create SQLite database and table if not exists
 def create_database():
     conn = sqlite3.connect('user_data.db')
@@ -659,65 +729,78 @@ def main():
             return stream_groq_chat(groq_messages, api_key=groq_api, model=groq_model, temperature=0.5)
 
         url = "./musicdata.csv"
-        df = pd.read_csv(url)
+        df = prepare_music_dataset(pd.read_csv(url))
 
         def make_clickable(val):
             # target _blank to open new window
             return '<a target="_blank" href="{}">{}</a>'.format(val, val)
         
-        def get_recommendations(df, input, amount):
-            distances = []
-            for r_song in df.values:
-                dist = 0
-                dist += np.absolute(float(input[0]) - float(r_song[4]))
-                dist += np.absolute(float(input[1]) - float(r_song[5]))
-                dist += np.absolute(float(input[2]) - float(r_song[6]))
-                dist += np.absolute(float(input[3]) - float(r_song[7]))
-                dist += np.absolute(float(input[4]) - float(r_song[8]))
-                dist += np.absolute(float(input[5]) - float(r_song[9]))
-                distances.append(dist)
-            df['distance'] = distances
-            res = df.sort_values('distance')
+        def get_recommendations(df, profile, amount):
+            target = pd.Series(profile, dtype=float)
+            weights = pd.Series({
+                "danceability": 1.0,
+                "energy": 1.25,
+                "speechiness": 0.55,
+                "acousticness": 1.1,
+                "valence": 1.35,
+                "tempo_norm": 0.8,
+            })
+            distances = ((df[MUSIC_FEATURES] - target[MUSIC_FEATURES]).abs() * weights[MUSIC_FEATURES]).sum(axis=1)
+            res = df.assign(distance=distances).sort_values('distance')
             res['spotify_track_id'] = res['spotify_track_id'].apply(make_clickable)
             columns=['Song', 'Performer', 'spotify_track_id']
             return res[columns][:amount]
         
         mood = ""
+        selected_mood = ""
         reply = ""
         
         if red_clicked:
             clear_chat_history()
+            selected_mood = "frustrated"
             mood = "I am feeling frustrated and annoyed."
             reply = "Oh! 😯 Well, music can be a great outlet for such emotions. I've got some songs for you that may uplift your mood."
         elif orange_clicked:
             clear_chat_history()
+            selected_mood = "motivated"
             mood = "I am feeling motivated to work harder."
             reply = "Nice! 😎 I've got you covered! Get ready to be motivated through these powerful songs!"
         elif yellow_clicked:
             clear_chat_history()
+            selected_mood = "excited"
             mood = "I am feeling excited!"
             reply = "Me too! 😃 Let's channel that excitement with some upbeat tunes! Get ready for an electrifying playlist!"
         elif green_clicked:
             clear_chat_history()
+            selected_mood = "satisfied"
             mood = "I am feeling satisfied and content."
             reply = "That's great to hear. 😊 How about we enhance that feeling of contentment with some nice songs?"
         elif blue_clicked:
             clear_chat_history()
+            selected_mood = "tired"
             mood = "I am feeling tired and need to relax."
             reply = "It sounds like you've had a busy day! 😓 I've got some soothing tunes that will help you relax and rejuvenate."
         elif purple_clicked:
             clear_chat_history()
+            selected_mood = "gloomy"
             mood = "I am feeling gloomy."
             reply = "Oh my, I've been there too 😟, but don't worry, that feeling will fade away soon. Let it flow out through these tunes."
         if prompt:=mood:
             st.session_state.musicrequest.append({"role": "user", "content": prompt + " You are going to perform music therapy. Your task is to list the normalised values (0-1) for danceability, energy, speechiness, acousticness, valence, and tempo for a song that best matches with my given mood. It is compulsory to include a list of the 6 numbers arranged in an array. The list is mandatory so always generate it. Keep your response short."})
+            st.session_state.selected_oasis_mood = selected_mood
 
         # Generate a new response if last message is not from assistant
         if st.session_state.musicrequest[-1]["role"] != "assistant":
             st.write("")
             st.write(reply)
+            selected_mood = st.session_state.get("selected_oasis_mood", selected_mood)
+            recdf = get_recommendations(df, MOOD_AUDIO_PROFILES[selected_mood], 10)
+            recdf.reset_index(drop=True, inplace=True)
+            st.subheader("Recommended Songs")
+            rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
             if use_groq and not groq_api:
-                st.info("Please enter a Groq API key to generate recommendations.")
+                st.session_state.musicrequest.append({"role": "assistant", "content": "Recommendations generated from the local music dataset."})
+                st.caption("Add a Groq API key in the sidebar for an LLM-generated mood summary.")
                 st.stop()
             response = generate_groq_music_response() if use_groq else generate_snowflake_arctic_response()
             full_response = ''
@@ -725,18 +808,11 @@ def main():
                 full_response += str(i)
             message = {"role": "assistant", "content": full_response}
             match = re.search(r'\[(.*?)\]', full_response)
+            st.session_state.musicrequest.append(message)
             if match:
                 extracted_array = re.findall(r'0?\.\d+|1(?:\.0+)?|0(?:\.0+)?', match.group(1))
                 if len(extracted_array) >= 6:
-                    st.session_state.musicrequest.append(message)
-                    recdf = get_recommendations(df, extracted_array[:6], 10)
-                    recdf.reset_index(drop=True, inplace=True)
-                    st.subheader("Recommended Songs")
-                    rec = st.write(recdf.to_html(escape = False), unsafe_allow_html = True)
-                else:
-                    st.info("Please try again.")
-            else:
-                st.info("Please try again.")
+                    st.caption(f"LLM mood vector: [{', '.join(extracted_array[:6])}]")
             
 if __name__ == "__main__":
     main()
