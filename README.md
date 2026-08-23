@@ -12,7 +12,7 @@ WorkPod is a Streamlit project collaboration tool built with SQLite, interactive
 
 The original Snowflake Arctic Instruct integration was functionally correct, but it depended on hosted inference credits. Once those credits ran out, WorkPod needed an online model provider that could continue working on Streamlit Cloud without requiring a local model server.
 
-The new default is **Groq with Llama 3.1 8B Instant** because:
+The new default is **Groq with GPT OSS 20B** because:
 
 - It works in a deployed Streamlit Cloud app.
 - It supports fast streaming chat completions through an OpenAI-compatible API.
@@ -33,7 +33,7 @@ The new default is **Groq with Llama 3.1 8B Instant** because:
 - Streamlit for the web app.
 - SQLite for local user and task storage.
 - Groq's OpenAI-compatible chat completions API for the default LLM runtime.
-- Meta Llama 3.1 8B Instant on Groq as the default model.
+- OpenAI GPT OSS 20B on Groq as the default model (`openai/gpt-oss-20b`).
 - Replicate + Snowflake Arctic Instruct retained as the legacy model provider.
 - Plotly, Pandas, and NumPy for analytics and recommendations.
 
@@ -61,14 +61,14 @@ pip install -r requirements.txt
 streamlit run run.py
 ```
 
-3. Keep **Groq - Llama 3.1 8B Instant** selected in the sidebar and enter a Groq API key if one is not configured in secrets. To test the original Snowflake Arctic implementation, choose **Snowflake Arctic via Replicate (legacy)** and provide a Replicate API token.
+3. Keep **Groq - GPT OSS 20B** selected in the sidebar and enter a Groq API key if one is not configured in secrets. To test the original Snowflake Arctic implementation, choose **Snowflake Arctic via Replicate (legacy)** and provide a Replicate API token.
 
 ## Configuration
 
 The default Groq model can be changed with:
 
 ```bash
-set WORKPOD_GROQ_MODEL=llama-3.1-8b-instant
+set WORKPOD_GROQ_MODEL=openai/gpt-oss-20b
 ```
 
 ## Developer

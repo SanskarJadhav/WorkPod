@@ -12,7 +12,14 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 
-DEFAULT_GROQ_MODEL = os.getenv("WORKPOD_GROQ_MODEL", "llama-3.1-8b-instant")
+RECOMMENDED_GROQ_MODEL = "openai/gpt-oss-20b"
+DECOMMISSIONED_GROQ_MODELS = {"llama-3.1-8b-instant"}
+configured_groq_model = os.getenv("WORKPOD_GROQ_MODEL", "").strip()
+DEFAULT_GROQ_MODEL = (
+    RECOMMENDED_GROQ_MODEL
+    if not configured_groq_model or configured_groq_model in DECOMMISSIONED_GROQ_MODELS
+    else configured_groq_model
+)
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Set assistant icon to WorkPod logo for the default Groq LLM path
@@ -406,7 +413,7 @@ def main():
         with st.sidebar:
             model_provider = st.selectbox(
                 "Model Provider",
-                ["Groq - Llama 3.1 8B Instant", "Snowflake Arctic via Replicate (legacy)"],
+                ["Groq - GPT OSS 20B", "Snowflake Arctic via Replicate (legacy)"],
             )
             use_groq = model_provider.startswith("Groq")
             replicate_api = ""
@@ -438,9 +445,9 @@ def main():
         # Store LLM-generated responses
         if "messages" not in st.session_state.keys():
             if username:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on GPT OSS 20B through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             else:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on GPT OSS 20B through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
     
         # Display or clear chat messages
         for message in st.session_state.messages:
@@ -449,9 +456,9 @@ def main():
     
         def clear_chat_history():
             if username:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi {username}! I'm WorkPod AI, now running on GPT OSS 20B through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             else:
-                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on Llama 3.1 through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
+                st.session_state.messages = [{"role": "assistant", "content": f"Hi! I'm WorkPod AI, now running on GPT OSS 20B through Groq. I heard you are working on a special project, and I can help break it down into clear steps."}]
             
         st.sidebar.button('Clear chat history', on_click=clear_chat_history)
     
@@ -601,7 +608,7 @@ def main():
         with st.sidebar:
             model_provider = st.selectbox(
                 "Model Provider",
-                ["Groq - Llama 3.1 8B Instant", "Snowflake Arctic via Replicate (legacy)"],
+                ["Groq - GPT OSS 20B", "Snowflake Arctic via Replicate (legacy)"],
                 key="oasis_model_provider",
             )
             use_groq = model_provider.startswith("Groq")
